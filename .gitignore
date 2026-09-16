@@ -1,0 +1,18 @@
+# Entornos virtuales de Python
+.venv/
+env/
+venv/
+ENV/
+
+# Archivos de caché de Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# IDEs
+.vscode/
+.idea/
+
+# No ignorar la base de datos ya que se persiste en GitHub Actions:
+# !data/empleo.db
