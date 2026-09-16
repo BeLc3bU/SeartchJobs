@@ -70,7 +70,7 @@ class TestProfileMatcher(unittest.TestCase):
 
     def test_remoto_verificacion_certificacion_clase_b(self):
         oferta = {
-            "puesto": "Ingeniero de Redes y Seguridad",
+            "puesto": "Técnico de Redes y Seguridad",
             "descripcion": "Gestión de redes WAN, switches Cisco, VPN y firewall. Requisito deseable o certificación oficial Cisco CCNA o Azure. Modalidad teletrabajo.",
             "ubicacion": "España",
             "modalidad": "REMOTO",
@@ -104,9 +104,41 @@ class TestProfileMatcher(unittest.TestCase):
         self.assertEqual(res["clasificacion"], "C")
         self.assertIn("solo ofertas en español", res["motivo"])
 
-    def test_filtro_idioma_espanol_valido(self):
-        self.assertTrue(self.matcher._es_idioma_espanol("Buscamos un técnico de sistemas y redes para incorporación en nuestro equipo"))
-        self.assertFalse(self.matcher._es_idioma_espanol("We are looking for an experienced software developer to join our engineering team"))
+    def test_descarte_ingenieria_universitaria(self):
+        oferta = {
+            "puesto": "Ingeniero/a Civil | Energías Renovables",
+            "descripcion": "Buscamos un ingeniero civil para diseño estructural. Imprescindible carrera universitaria o máster en ingeniería de caminos/civil.",
+            "ubicacion": "Madrid",
+            "modalidad": "REMOTO",
+            "horario": "FLEXIBLE"
+        }
+        res = self.matcher.evaluar_oferta(oferta)
+        self.assertEqual(res["clasificacion"], "C")
+        self.assertIn("FP Grado Superior", res["motivo"])
+
+    def test_descarte_profesion_no_afin(self):
+        oferta = {
+            "puesto": "Ortodoncista Clínicas Dentales",
+            "descripcion": "Seleccionamos odontólogo especialista en ortodoncia para atención a pacientes en Albacete.",
+            "ubicacion": "Albacete",
+            "modalidad": "PRESENCIAL",
+            "horario": "Turno de tarde"
+        }
+        res = self.matcher.evaluar_oferta(oferta)
+        self.assertEqual(res["clasificacion"], "C")
+        self.assertIn("Profesión no afín", res["motivo"])
+
+    def test_acepta_grado_superior_asir(self):
+        oferta = {
+            "puesto": "Técnico de Sistemas y Redes (ASIR / Grado Superior)",
+            "descripcion": "Buscamos técnico informático con Formación Profesional Grado Superior (ASIR) para administración de Linux, Active Directory, soporte técnico y redes. 100% teletrabajo.",
+            "ubicacion": "España",
+            "modalidad": "REMOTO",
+            "horario": "FLEXIBLE"
+        }
+        res = self.matcher.evaluar_oferta(oferta)
+        self.assertEqual(res["clasificacion"], "A")
+        self.assertTrue(any("sistemas" in c.lower() for c in res["requisitos_cumple"]))
 
 
 class TestDatabaseAndDeduplication(unittest.TestCase):

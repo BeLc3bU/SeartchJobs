@@ -102,6 +102,13 @@ class DatabaseManager:
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_ofertas_clasificacion ON ofertas(clasificacion)")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_ofertas_estado ON ofertas(estado)")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_ofertas_fecha ON ofertas(fecha_procesada)")
+
+            # Migración: asegurar que la columna descripcion existe
+            cursor.execute("PRAGMA table_info(ofertas)")
+            cols = [col[1] for col in cursor.fetchall()]
+            if "descripcion" not in cols:
+                cursor.execute("ALTER TABLE ofertas ADD COLUMN descripcion TEXT DEFAULT ''")
+
             conn.commit()
             logger.info("Base de datos SQLite verificada en %s", self.db_path)
 
@@ -118,8 +125,8 @@ class DatabaseManager:
                 INSERT OR REPLACE INTO ofertas (
                     id, puesto, empresa, ubicacion, modalidad, horario, salario,
                     url, fuente, clasificacion, estado, requisitos_cumple,
-                    requisitos_verificar, motivo, fecha_publicacion, fecha_procesada
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    requisitos_verificar, motivo, fecha_publicacion, fecha_procesada, descripcion
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 oferta["id"],
                 oferta["puesto"],
@@ -136,7 +143,8 @@ class DatabaseManager:
                 json.dumps(oferta.get("requisitos_verificar", []), ensure_ascii=False),
                 oferta.get("motivo", ""),
                 oferta.get("fecha_publicacion", ""),
-                oferta.get("fecha_procesada", datetime.now(timezone.utc).isoformat())
+                oferta.get("fecha_procesada", datetime.now(timezone.utc).isoformat()),
+                oferta.get("descripcion", "")
             ))
             conn.commit()
 
@@ -300,14 +308,16 @@ class ProfileMatcher:
     LOCALIDADES_LOCALES = ["albacete", "hellin", "hellín", "chinchilla", "la gineta"]
 
     def __init__(self):
-        # Mapeo léxico de competencias
+        # Mapeo léxico de competencias de Pedro
         self.tech_keywords = {
             "sistemas_redes": [
                 "linux", "debian", "ubuntu", "redhat", "centos", "rocky", "windows server",
                 "active directory", "ldap", "redes", "lan", "wan", "routing", "switching",
                 "vlan", "firewall", "vpn", "tcp/ip", "dns", "dhcp", "cisco", "mikrotik",
-                "soporte", "helpdesk", "l2", "l3", "sysadmin", "administrador de sistemas",
-                "asir", "virtualizacion", "vmware", "vsphere", "proxmox", "hyper-v"
+                "soporte tecnico", "soporte técnico", "soporte informatico", "soporte informático",
+                "helpdesk", "soporte l2", "soporte l3", "soporte a usuarios", "soporte it",
+                "it support", "sysadmin", "administrador de sistemas", "asir", "virtualizacion",
+                "vmware", "vsphere", "proxmox", "hyper-v", "microinformatica", "microinformática"
             ],
             "avionica_electronica": [
                 "avionica", "aviónica", "aeronautica", "aeronáutica", "simulador", "simuladores",
@@ -323,24 +333,77 @@ class ProfileMatcher:
             ],
             "logistica_calidad": [
                 "almacen", "almacén", "logistica", "logística", "repuestos", "stock",
-                "inventario", "compras tecnicas", "compras técnicas", "calidad",
-                "procedimientos", "normativa", "documentacion tecnica", "documentación técnica",
-                "iso 9001", "gestion de material", "gestión de material"
+                "inventario", "compras tecnicas", "compras técnicas", "control de calidad",
+                "gestion de calidad", "calidad iso", "iso 9001", "normativa aeronautica",
+                "normativa militar", "gestion de material", "gestión de material"
             ],
             "administracion_contabilidad": [
                 "administrativo", "administrativa", "administracion", "administración",
-                "contable", "contabilidad", "facturacion", "facturación", "asientos",
-                "conciliacion", "conciliación", "proveedores", "clientes", "albaranes",
-                "pedidos", "gestion documental", "gestión documental", "archivo",
-                "registro", "erp", "sap", "excel", "office", "backoffice", "back office",
-                "auxiliar administrativo", "auxiliar administrativa", "gestion de cobros",
-                "tramitacion", "tramitación", "secretariado", "oficina tecnica"
+                "contable", "contabilidad", "facturacion", "facturación", "asientos contables",
+                "conciliacion bancaria", "conciliación bancaria", "gestion de albaranes",
+                "gestion documental", "gestión documental", "archivo", "erp", "sap",
+                "excel", "backoffice", "back office", "auxiliar administrativo",
+                "auxiliar administrativa", "gestion de cobros", "tramitacion", "tramitación"
             ],
             "ciberseguridad": [
                 "ciberseguridad", "seguridad informatica", "seguridad de la informacion",
                 "incibe", "soc", "siem", "criptografia", "hardening", "iso 27001", "ens"
             ]
         }
+
+        # Profesiones tajantemente excluidas (salud, legal, obra civil, comercial puro, hostelería)
+        self.EXCLUDED_PROFESSIONS = [
+            r'\bortodonc\w*', r'\bdent\w*', r'\bodont[oó]log\w*', r'\bm[eé]dic\w*', r'\benferm\w*',
+            r'\bveterinar\w*', r'\bfarmac[eé]ut\w*', r'\bfisioterap\w*', r'\bpsic[oó]log\w*',
+            r'\babogad\w*', r'\bletrad\w*', r'\bjur[ií]dic\w*',
+            r'\bviajes?\b', r'\bhotel\w*', r'\bhosteler\w*', r'\bcamarer\w*', r'\bcocin\w*',
+            r'\bcrupier\b', r'\bcasino\b', r'\binmobiliar\w*',
+            r'\bobra civil\b', r'\bjefe de obra\b', r'\bjefa de obra\b',
+            r'\bcomercial\b', r'\bventas?\b', r'\baccount manager\b', r'\bvendedor\w*', r'\bteleoperador\w*'
+        ]
+
+        # Titulaciones universitarias e ingenierías excluidas salvo que explícitamente admitan FP / Grado Superior
+        self.EXCLUDED_DEGREE_TITLES = [
+            r'\bingeniero\b', r'\bingeniera\b', r'\bingenier[íi]a\b',
+            r'\barquitecto\b', r'\barquitecta\b',
+            r'\bcivil\b', r'\bclimat\w*', r'\bambiental\b', r'\bqu[íi]mic\w*',
+            r'\bagr[oó]nom\w*', r'\bagr[ií]col\w*', r'\bge[oó]log\w*'
+        ]
+
+        self.FP_ACCEPTED_KEYWORDS = [
+            'grado superior', 'ciclo formativo', 'fp ii', 'fp 2', 'fp',
+            'formación profesional', 'formacion profesional', 'técnico superior', 'tecnico superior',
+            'cfgs', 'asir', 'dam', 'daw', 'o experiencia equivalente'
+        ]
+
+        self.MANDATORY_DEGREE_KEYWORDS = [
+            r'titulaci[oó]n universitaria\b',
+            r'grado universitario\b',
+            r'carrera universitaria\b',
+            r'licenciatura\b',
+            r'estudios universitarios imprescindibles\b',
+            r'm[aá]ster universitario\b',
+            r'imprescindible grado\b',
+            r'imprescindible ingenier[íi]a\b',
+            r'imprescindible carrera\b'
+        ]
+
+        # Palabras clave en el título que definen los puestos técnicos y operativos de FP Grado Superior
+        self.TARGET_TITLE_KEYWORDS = [
+            # Sistemas / Redes / Informática
+            r'sistemas?', r'redes?', r'sysadmin', r'linux', r'windows', r'soporte', r'helpdesk',
+            r'inform[aá]tic\w*', r'asir', r'ciberseguridad', r'seguridad', r'devops', r'cloud',
+            r'virtualizaci[oó]n', r'microinform[aá]tic\w*', r'operador', r't[eé]cnic\w*',
+            # Aviónica / Electrónica / Hardware / Simulación
+            r'avi[oó]nic\w*', r'electr[oó]nic\w*', r'hardware', r'simulador\w*', r'calibraci[oó]n',
+            r'instrumentaci[oó]n', r'aeron[aá]utic\w*', r'mantenimiento', r'soldadura', r'defensa',
+            # Automatización / Scripting
+            r'python', r'automatizaci[oó]n', r'scripting', r'programador\w*', r'desarrollador\w*',
+            # Logística técnica / Almacén / Calidad
+            r'almac[eé]n', r'log[ií]stic\w*', r'repuestos?', r'stock', r'inventario', r'material',
+            # Administración / Gestión documental
+            r'administrativ\w*', r'facturaci[oó]n', r'gesti[oó]n documental', r'backoffice', r'archivo', r'tramitaci[oó]n'
+        ]
 
         # Certificaciones o requisitos civiles a verificar para Clase B
         self.verificar_keywords = [
@@ -354,6 +417,41 @@ class ProfileMatcher:
             ("b2", "Verificar nivel de inglés formal B2"),
             ("c1", "Verificar nivel de inglés formal C1")
         ]
+
+    def _es_titulacion_compatible(self, puesto: str, descripcion: str) -> Tuple[bool, str]:
+        """
+        Garantiza que la oferta sea acorde al nivel de estudios de Pedro (FP Grado Superior).
+        Descarta puestos que requieran titulación universitaria/ingeniería superior o profesiones no afines.
+        """
+        p_lower = puesto.lower()
+        d_lower = descripcion.lower()
+        texto_completo = f"{p_lower} {d_lower}"
+
+        # 1. Comprobar profesiones completamente ajenas (salud, legal, comercial puro, obra civil)
+        for pat in self.EXCLUDED_PROFESSIONS:
+            if re.search(pat, p_lower):
+                return False, f"Profesión no afín al perfil técnico/ASIR de Pedro ({pat})"
+
+        # 2. Comprobar si explícitamente se acepta o valora FP / Grado Superior
+        admite_fp = any(kw in texto_completo for kw in self.FP_ACCEPTED_KEYWORDS)
+
+        # 3. Comprobar titulaciones universitarias / ingenierías en el título
+        for pat in self.EXCLUDED_DEGREE_TITLES:
+            if re.search(pat, p_lower) and not admite_fp:
+                return False, "Puesto de ingeniería/carrera universitaria superior (no especifica FP Grado Superior)"
+
+        # 4. Comprobar requisitos de titulación universitaria obligatoria en la descripción
+        if not admite_fp:
+            for pat in self.MANDATORY_DEGREE_KEYWORDS:
+                if re.search(pat, d_lower):
+                    return False, "Exige titulación universitaria / carrera sin contemplar FP Grado Superior"
+
+        # 5. Comprobar coherencia ocupacional en el título del puesto
+        tiene_ocupacion_diana = any(re.search(pat, p_lower) for pat in self.TARGET_TITLE_KEYWORDS) or admite_fp
+        if not tiene_ocupacion_diana:
+            return False, "Puesto no alineado con las áreas técnicas/operativas de FP Grado Superior de Pedro"
+
+        return True, "Compatible con FP Grado Superior"
 
     def _es_remoto_espana(self, texto: str, ubicacion: str, modalidad: str) -> bool:
         """Determina si la oferta es 100% teletrabajo compatible con España."""
@@ -413,7 +511,8 @@ class ProfileMatcher:
             "conocimientos", "trabajo", "incorporación", "jornada", "contrato",
             "equipo", "nuestro", "nuestra", "buscamos", "ofrecemos", "desarrollo",
             "proyecto", "años", "año", "salario", "soporte", "sistemas", "horario",
-            "titulación", "sector", "perfil", "remoto", "teletrabajo", "gestión"
+            "titulación", "sector", "perfil", "remoto", "teletrabajo", "gestión",
+            "técnico", "tecnico", "administrador", "mantenimiento"
         }
         palabras_en = {
             "the", "and", "with", "for", "our", "you", "your", "we", "looking",
@@ -427,11 +526,14 @@ class ProfileMatcher:
         coincidencias_en = len(tokens.intersection(palabras_en))
 
         # Si las palabras en inglés superan notablemente a las de español
-        if coincidencias_en > 3 and coincidencias_en > coincidencias_es:
+        if coincidencias_en >= 3 and coincidencias_en > coincidencias_es:
             return False
 
-        # Requiere al menos 3 palabras funcionales típicas del idioma español
-        return coincidencias_es >= 3
+        # Si hay palabras en español y mínima o ninguna presencia en inglés, es español
+        if coincidencias_es >= 1 and coincidencias_en <= 1:
+            return True
+
+        return coincidencias_es >= 2
 
     def evaluar_oferta(self, oferta: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -454,7 +556,17 @@ class ProfileMatcher:
                 "requisitos_verificar": []
             }
 
-        # 1. FILTRO ESTRICTO DE MODALIDAD / UBICACIÓN Y HORARIO
+        # 1. FILTRO DE TITULACIÓN Y PUESTO ACORDE A GRADO SUPERIOR
+        es_titulacion_ok, motivo_titulacion = self._es_titulacion_compatible(puesto, descripcion)
+        if not es_titulacion_ok:
+            return {
+                "clasificacion": "C",
+                "motivo": f"Descartada: {motivo_titulacion} (filtro: acorde a FP Grado Superior).",
+                "requisitos_cumple": [],
+                "requisitos_verificar": []
+            }
+
+        # 2. FILTRO ESTRICTO DE MODALIDAD / UBICACIÓN Y HORARIO
         es_remoto = self._es_remoto_espana(texto_analisis, ubicacion, modalidad)
         es_local_tarde, motivo_local = self._es_local_tarde(texto_analisis, ubicacion, horario)
 
