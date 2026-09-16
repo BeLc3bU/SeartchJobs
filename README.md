@@ -64,30 +64,47 @@ AlertasEmpleo/
 ### Paso 1: Configurar el Bot de Telegram
 
 1. Abre Telegram y busca a **[@BotFather](https://t.me/BotFather)**.
-2. Envía el comando `/newbot`, asigna un nombre (ej. `Pedro Job Hunter Bot`) y un username único (ej. `PedroJobAgentBot`).
-3. BotFather te proporcionará un **Token HTTP API** (ej. `7123456789:AAH...`). Guárdalo como `TELEGRAM_TOKEN`.
-4. Pulsa en el enlace de tu nuevo bot e inicia la conversación con `/start`.
-5. Para obtener tu ID personal de Telegram, habla con **[@userinfobot](https://t.me/userinfobot)**; te responderá con tu `Id` numérico (ej. `123456789`). Guárdalo como `TELEGRAM_CHAT_ID`.
+2. Envía el comando `/newbot`, asigna un nombre y un username único (ej. `searchjobs`).
+3. BotFather te proporcionará un **Token HTTP API** (ej. `7123456789:AAH...`). Este es tu `TELEGRAM_TOKEN`.
+4. Pulsa en el enlace de tu nuevo bot y presiona **INICIAR** (o envíale `/start`).
+   > [!NOTE]
+   > **¿Por qué el bot no responde nada al pulsar `/start`?**
+   > Los bots de Telegram son pasivos: no tienen inteligencia propia ni responden automáticamente a menos que haya un servidor ejecutando código las 24 horas. En nuestra arquitectura de coste cero, el bot actúa como un **canal emisor** unidireccional: es nuestro agente (`job_agent.py`) quien le da órdenes a Telegram para enviarte los mensajes a ti.
+5. Puedes obtener tu `TELEGRAM_CHAT_ID` y probar la conexión al instante ejecutando en tu terminal:
+   ```bash
+   python src/test_telegram.py <TU_TELEGRAM_TOKEN>
+   ```
+   Este script se conectará con Telegram, detectará automáticamente el `/start` que enviaste, extraerá tu `CHAT_ID` y te mandará un mensaje de bienvenida directo a Telegram.
 
 ---
 
 ### Paso 2: Configurar los Secrets en GitHub
 
-1. En tu repositorio de GitHub, dirígete a:
+1. En tu repositorio **[https://github.com/BeLc3bU/SeartchJobs](https://github.com/BeLc3bU/SeartchJobs)**, dirígete a:
    **Settings** ➔ **Secrets and variables** ➔ **Actions** ➔ **New repository secret**.
 2. Añade los siguientes dos secretos:
    - `TELEGRAM_TOKEN`: Tu token generado por BotFather.
-   - `TELEGRAM_CHAT_ID`: Tu ID numérico obtenido de @userinfobot.
+   - `TELEGRAM_CHAT_ID`: Tu ID numérico detectado.
 
 ---
 
 ### Paso 3: Habilitar Permisos de Escritura para GitHub Actions
 
 Para que el agente pueda hacer `git commit` y `git push` de `data/empleo.db` tras cada ejecución diaria:
-1. En tu repositorio, entra en **Settings** ➔ **Actions** ➔ **General**.
+1. En **[https://github.com/BeLc3bU/SeartchJobs](https://github.com/BeLc3bU/SeartchJobs)**, entra en **Settings** ➔ **Actions** ➔ **General**.
 2. Desplázate hasta la sección **Workflow permissions**.
 3. Selecciona la opción **"Read and write permissions"**.
 4. Haz clic en **Save**.
+
+---
+
+### Paso 4: Subir el Código al Repositorio
+
+Desde tu terminal en `c:\Proyectos\AlertasEmpleo`:
+```bash
+git push -u origin main
+```
+
 
 ---
 
