@@ -1,0 +1,8 @@
+name = "searchjobs-telegram-bot"
+main = "worker.js"
+compatibility_date = "2024-09-01"
+
+[vars]
+TELEGRAM_CHAT_ID = "6222316"
+# TELEGRAM_TOKEN se configura como secreto en Cloudflare:
+# npx wrangler secret put TELEGRAM_TOKEN

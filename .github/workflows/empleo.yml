@@ -43,15 +43,16 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          # Asegurar que el directorio data está incluido
-          git add data/empleo.db
+          # Asegurar que la base de datos y el JSON para Cloudflare están incluidos
+          git add data/empleo.db data/ofertas.json
           
           # Comprobar si hay cambios staged antes de hacer commit
           if git diff --staged --quiet; then
-            echo "No hay cambios nuevos en data/empleo.db. No se requiere commit."
+            echo "No hay cambios nuevos en data/. No se requiere commit."
           else
-            git commit -m "chore: actualización automática bd empleo [skip ci]"
+            git commit -m "chore: actualización automática bd empleo y ofertas json [skip ci]"
             git pull --rebase origin main || true
             git push origin main
-            echo "Cambios en data/empleo.db guardados y subidos al repositorio."
+            echo "Cambios en data/empleo.db y data/ofertas.json guardados y subidos al repositorio."
           fi
+

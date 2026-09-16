@@ -215,6 +215,33 @@ class DatabaseManager:
             conn.commit()
             return dict(of)
 
+    def exportar_json(self, output_path: Optional[str] = None):
+        """Exporta las ofertas de Clase A y B a un archivo JSON para consumo por el Webhook de Cloudflare."""
+        if not output_path:
+            output_path = os.path.join(os.path.dirname(self.db_path), "ofertas.json")
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                SELECT id, puesto, empresa, ubicacion, modalidad, horario, salario,
+                       url, fuente, clasificacion, estado, requisitos_cumple,
+                       requisitos_verificar, motivo, fecha_publicacion, fecha_procesada
+                FROM ofertas
+                WHERE clasificacion IN ('A', 'B')
+                ORDER BY clasificacion ASC, fecha_procesada DESC
+            """)
+            filas = cursor.fetchall()
+            datos = []
+            for f in filas:
+                d = dict(f)
+                d["requisitos_cumple"] = json.loads(d["requisitos_cumple"] or "[]")
+                d["requisitos_verificar"] = json.loads(d["requisitos_verificar"] or "[]")
+                datos.append(d)
+            
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(datos, f, ensure_ascii=False, indent=2)
+            logger.info("Exportado archivo JSON con %d ofertas en %s", len(datos), output_path)
+
+
 
 # =====================================================================
 # 2. MOTOR DE FILTRADO GEOGRÁFICO, HORARIO Y PERFIL DE PEDRO
@@ -802,6 +829,9 @@ class JobAgent:
 
         # 4. Procesar comandos pendientes enviados por el usuario en Telegram
         self.procesar_comandos_telegram()
+
+        # 5. Exportar JSON de ofertas sincronizado para Cloudflare Worker
+        self.db.exportar_json()
 
         logger.info("=== EJECUCIÓN FINALIZADA SATISFACTORIAMENTE ===")
 
