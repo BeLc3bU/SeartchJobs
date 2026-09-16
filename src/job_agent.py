@@ -23,6 +23,11 @@ import requests
 import feedparser
 from bs4 import BeautifulSoup
 
+try:
+    from curl_cffi import requests as cffi_requests
+except ImportError:
+    cffi_requests = None
+
 # Configuración de codificación para consola Windows/Linux
 if sys.platform == "win32":
     try:
@@ -241,6 +246,39 @@ class DatabaseManager:
                 json.dump(datos, f, ensure_ascii=False, indent=2)
             logger.info("Exportado archivo JSON con %d ofertas en %s", len(datos), output_path)
 
+    def reclasificar_bd(self, matcher: 'ProfileMatcher') -> int:
+        """Re-evalúa todas las ofertas de la BD con el matcher actual (filtro idioma español + restricciones)."""
+        actualizadas = 0
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM ofertas")
+            filas = cursor.fetchall()
+            for f in filas:
+                of_dict = dict(f)
+                res = matcher.evaluar_oferta(of_dict)
+                nueva_clase = res["clasificacion"]
+                nuevo_motivo = res["motivo"]
+                nuevo_cumple = json.dumps(res.get("requisitos_cumple", []), ensure_ascii=False)
+                nuevo_verif = json.dumps(res.get("requisitos_verificar", []), ensure_ascii=False)
+                
+                nuevo_estado = of_dict["estado"]
+                if nueva_clase == "C" and of_dict["estado"] != "DESCARTADA":
+                    nuevo_estado = "DESCARTADA"
+
+                if (nueva_clase != of_dict["clasificacion"] or 
+                    nuevo_motivo != of_dict["motivo"] or 
+                    nuevo_estado != of_dict["estado"]):
+                    cursor.execute("""
+                        UPDATE ofertas
+                        SET clasificacion = ?, motivo = ?, requisitos_cumple = ?, 
+                            requisitos_verificar = ?, estado = ?
+                        WHERE id = ?
+                    """, (nueva_clase, nuevo_motivo, nuevo_cumple, nuevo_verif, nuevo_estado, of_dict["id"]))
+                    actualizadas += 1
+            conn.commit()
+        logger.info("Reclasificación de BD completada: %d ofertas actualizadas.", actualizadas)
+        return actualizadas
+
 
 
 # =====================================================================
@@ -361,6 +399,40 @@ class ProfileMatcher:
         # Si es local en Albacete/Hellín pero no especifica turno, es candidato potencial a verificar
         return True, "Presencial/Híbrido en Albacete/Hellín (turno exacto a verificar)"
 
+    def _es_idioma_espanol(self, texto: str) -> bool:
+        """
+        Verifica si la oferta está redactada en español.
+        Descarta ofertas redactadas en inglés u otros idiomas extranjeros.
+        """
+        if not texto:
+            return False
+
+        palabras_es = {
+            "de", "en", "y", "la", "el", "los", "las", "para", "con", "del", "por",
+            "un", "una", "requisitos", "experiencia", "puesto", "empresa", "funciones",
+            "conocimientos", "trabajo", "incorporación", "jornada", "contrato",
+            "equipo", "nuestro", "nuestra", "buscamos", "ofrecemos", "desarrollo",
+            "proyecto", "años", "año", "salario", "soporte", "sistemas", "horario",
+            "titulación", "sector", "perfil", "remoto", "teletrabajo", "gestión"
+        }
+        palabras_en = {
+            "the", "and", "with", "for", "our", "you", "your", "we", "looking",
+            "responsibilities", "requirements", "team", "join", "working", "about",
+            "skills", "experience", "building", "role", "help", "opportunity",
+            "applicant", "apply", "who", "will", "what", "must", "have", "company"
+        }
+
+        tokens = set(re.findall(r'\b[a-záéíóúñ]{2,}\b', texto.lower()))
+        coincidencias_es = len(tokens.intersection(palabras_es))
+        coincidencias_en = len(tokens.intersection(palabras_en))
+
+        # Si las palabras en inglés superan notablemente a las de español
+        if coincidencias_en > 3 and coincidencias_en > coincidencias_es:
+            return False
+
+        # Requiere al menos 3 palabras funcionales típicas del idioma español
+        return coincidencias_es >= 3
+
     def evaluar_oferta(self, oferta: Dict[str, Any]) -> Dict[str, Any]:
         """
         Aplica filtros estrictos y categoriza en A, B o C sin porcentajes numéricos arbitrarios.
@@ -373,9 +445,19 @@ class ProfileMatcher:
         
         texto_analisis = f"{puesto} {descripcion} {ubicacion} {modalidad} {horario}".lower()
 
+        # 0. FILTRO ESTRICTO DE IDIOMA (SOLO OFERTAS EN ESPAÑOL)
+        if not self._es_idioma_espanol(f"{puesto} {descripcion}"):
+            return {
+                "clasificacion": "C",
+                "motivo": "Descartada: Oferta redactada en inglés u otro idioma extranjero (filtro: solo ofertas en español).",
+                "requisitos_cumple": [],
+                "requisitos_verificar": []
+            }
+
         # 1. FILTRO ESTRICTO DE MODALIDAD / UBICACIÓN Y HORARIO
         es_remoto = self._es_remoto_espana(texto_analisis, ubicacion, modalidad)
         es_local_tarde, motivo_local = self._es_local_tarde(texto_analisis, ubicacion, horario)
+
 
         if not es_remoto and not es_local_tarde:
             # Descartada directamente por geografía u horario
@@ -467,177 +549,405 @@ def limpiar_html(html_text: str) -> str:
     return re.sub(r'\s+', ' ', texto).strip()
 
 
-class RemotiveConnector:
-    """Conector a la API abierta de Remotive."""
-    URL = "https://remotive.com/api/remote-jobs"
-
-    def fetch(self) -> List[Dict[str, Any]]:
-        logger.info("Consultando API de Remotive...")
-        try:
-            resp = requests.get(self.URL, headers=HTTP_HEADERS, timeout=20)
-            if resp.status_code != 200:
-                logger.warning("Remotive respondió con status %s", resp.status_code)
-                return []
-            data = resp.json()
-            jobs = data.get("jobs", [])
-            logger.info("Remotive: %d ofertas recibidas.", len(jobs))
-            
-            ofertas_normalizadas = []
-            for j in jobs:
-                # Filtrar solo ofertas que permitan candidatos de España o Anywhere/Worldwide/Europe
-                location = (j.get("candidate_required_location") or "").lower()
-                permitido = any(loc in location for loc in ["spain", "españa", "worldwide", "anywhere", "europe", "emea", ""])
-                if not permitido:
-                    continue
-
-                empresa = j.get("company_name", "Empresa Confidencial")
-                puesto = j.get("title", "Sin título")
-                url = j.get("url", "")
-                if not url:
-                    continue
-
-                ofertas_normalizadas.append({
-                    "id": generar_hash(empresa, puesto, url),
-                    "puesto": puesto,
-                    "empresa": empresa,
-                    "ubicacion": j.get("candidate_required_location") or "Remoto España / Global",
-                    "modalidad": "REMOTO",
-                    "horario": "FLEXIBLE",
-                    "salario": j.get("salary") or "No especificado",
-                    "url": url,
-                    "fuente": "Remotive API",
-                    "descripcion": limpiar_html(j.get("description", "")),
-                    "fecha_publicacion": j.get("publication_date", "")
-                })
-            return ofertas_normalizadas
-        except Exception as e:
-            logger.error("Error al conectar con Remotive: %s", e)
-            return []
-
-
-class TecnoempleoRSSConnector:
-    """Conector para el feed RSS público de Tecnoempleo con metadatos estructurados."""
-    URL = "https://www.tecnoempleo.com/alertas-empleo-rss.php"
-
-    def fetch(self) -> List[Dict[str, Any]]:
-        logger.info("Consultando RSS de Tecnoempleo...")
-        try:
-            resp = requests.get(self.URL, headers=HTTP_HEADERS, timeout=20)
-            if resp.status_code != 200:
-                logger.warning("Tecnoempleo RSS respondió con status %s", resp.status_code)
-                return []
-
-            feed = feedparser.parse(resp.content)
-            logger.info("Tecnoempleo RSS: %d entradas encontradas.", len(feed.entries))
-
-            ofertas = []
-            for entry in feed.entries:
-                puesto = entry.get("title", "").strip()
-                url = entry.get("link", "").strip()
-                raw_desc = entry.get("description", "")
-
-                # Extraer campos estructurados del HTML del feed de Tecnoempleo
-                soup = BeautifulSoup(raw_desc, "html.parser")
-                
-                empresa = "Empresa Confidencial"
-                provincia = "España"
-                salario = "No especificado"
-                tecnologias = ""
-                modalidad = "PRESENCIAL / NO ESPECIFICADA"
-
-                # Analizar campos b/text
-                for b_tag in soup.find_all("b"):
-                    campo = b_tag.get_text().strip().lower()
-                    parent_text = b_tag.next_sibling
-                    valor = str(parent_text).strip() if parent_text else ""
-                    
-                    if "empresa" in campo and valor:
-                        empresa = valor
-                    elif "provincia" in campo and valor:
-                        provincia = valor
-                    elif "salario" in campo and valor:
-                        salario = valor
-                    elif "tecnologías" in campo or "tecnologias" in campo and valor:
-                        tecnologias = valor
-
-                desc_text = limpiar_html(raw_desc)
-
-                # Detección de modalidad y provincia
-                if any(t in desc_text.lower() or t in provincia.lower() for t in ["100% teletrabajo", "teletrabajo", "remoto"]):
-                    modalidad = "REMOTO"
-                elif any(loc in provincia.lower() or loc in desc_text.lower() for loc in ["albacete", "hellin", "hellín"]):
-                    modalidad = "PRESENCIAL / HÍBRIDO LOCAL"
-
-                if not url:
-                    continue
-
-                ofertas.append({
-                    "id": generar_hash(empresa, puesto, url),
-                    "puesto": puesto,
-                    "empresa": empresa,
-                    "ubicacion": provincia,
-                    "modalidad": modalidad,
-                    "horario": "No especificado",
-                    "salario": salario,
-                    "url": url,
-                    "fuente": "Tecnoempleo RSS",
-                    "descripcion": f"{desc_text} Tecnologías: {tecnologias}",
-                    "fecha_publicacion": entry.get("published", "")
-                })
-            return ofertas
-        except Exception as e:
-            logger.error("Error al consultar Tecnoempleo RSS: %s", e)
-            return []
-
-
-class WeWorkRemotelyConnector:
-    """Conector a feeds RSS de WeWorkRemotely para categorías DevOps, Sysadmin y Programación."""
+class TecnoempleoConnector:
+    """Conector para los feeds RSS y búsquedas de Tecnoempleo (Albacete, Teletrabajo y General IT)."""
     FEEDS = [
-        ("WWR DevOps/Sysadmin", "https://weworkremotely.com/categories/remote-devops-sysadmin-jobs.rss"),
-        ("WWR Programming", "https://weworkremotely.com/categories/remote-programming-jobs.rss")
+        ("Tecnoempleo Albacete", "https://www.tecnoempleo.com/alertas-empleo-rss.php?pr=albacete"),
+        ("Tecnoempleo Teletrabajo", "https://www.tecnoempleo.com/alertas-empleo-rss.php?te=teletrabajo"),
+        ("Tecnoempleo General", "https://www.tecnoempleo.com/alertas-empleo-rss.php"),
     ]
 
     def fetch(self) -> List[Dict[str, Any]]:
-        todas = []
-        for name, url in self.FEEDS:
-            logger.info("Consultando RSS de %s...", name)
+        ofertas = []
+        urls_vistas = set()
+        for nombre, url in self.FEEDS:
+            logger.info("Consultando %s...", nombre)
             try:
                 resp = requests.get(url, headers=HTTP_HEADERS, timeout=15)
                 if resp.status_code != 200:
                     continue
                 feed = feedparser.parse(resp.content)
                 for entry in feed.entries:
-                    puesto_raw = entry.get("title", "")
-                    # Generalmente viene en formato "Empresa: Puesto"
-                    partes = puesto_raw.split(":", 1)
-                    if len(partes) == 2:
-                        empresa = partes[0].strip()
-                        puesto = partes[1].strip()
-                    else:
-                        empresa = "Empresa WWR"
-                        puesto = puesto_raw.strip()
-
-                    url_job = entry.get("link", "")
-                    if not url_job:
+                    link = entry.get("link", "").strip()
+                    if not link or link in urls_vistas:
                         continue
+                    urls_vistas.add(link)
 
-                    desc = limpiar_html(entry.get("description", ""))
-                    todas.append({
-                        "id": generar_hash(empresa, puesto, url_job),
+                    puesto = entry.get("title", "").strip()
+                    raw_desc = entry.get("description", "")
+                    soup = BeautifulSoup(raw_desc, "html.parser")
+                    
+                    empresa = "Empresa Confidencial"
+                    provincia = "España"
+                    salario = "No especificado"
+                    tecnologias = ""
+                    modalidad = "PRESENCIAL / NO ESPECIFICADA"
+
+                    for b_tag in soup.find_all("b"):
+                        campo = b_tag.get_text().strip().lower()
+                        parent_text = b_tag.next_sibling
+                        valor = str(parent_text).strip() if parent_text else ""
+                        if "empresa" in campo and valor:
+                            empresa = valor
+                        elif "provincia" in campo and valor:
+                            provincia = valor
+                        elif "salario" in campo and valor:
+                            salario = valor
+                        elif "tecnolog" in campo and valor:
+                            tecnologias = valor
+
+                    desc_text = limpiar_html(raw_desc)
+                    if any(t in desc_text.lower() or t in provincia.lower() for t in ["100% teletrabajo", "teletrabajo", "remoto"]):
+                        modalidad = "REMOTO"
+                    elif any(loc in provincia.lower() or loc in desc_text.lower() for loc in ["albacete", "hellin", "hellín"]):
+                        modalidad = "PRESENCIAL / HÍBRIDO LOCAL"
+
+                    ofertas.append({
+                        "id": generar_hash(empresa, puesto, link),
                         "puesto": puesto,
                         "empresa": empresa,
-                        "ubicacion": "100% Remoto",
-                        "modalidad": "REMOTO",
-                        "horario": "FLEXIBLE",
-                        "salario": "No especificado",
-                        "url": url_job,
-                        "fuente": name,
-                        "descripcion": desc,
+                        "ubicacion": provincia,
+                        "modalidad": modalidad,
+                        "horario": "No especificado",
+                        "salario": salario,
+                        "url": link,
+                        "fuente": "Tecnoempleo",
+                        "descripcion": f"{desc_text} Tecnologías: {tecnologias}".strip(),
                         "fecha_publicacion": entry.get("published", "")
                     })
             except Exception as e:
-                logger.warning("Error en feed %s: %s", name, e)
-        return todas
+                logger.warning("Error en %s: %s", nombre, e)
+        logger.info("Tecnoempleo: %d ofertas recopiladas.", len(ofertas))
+        return ofertas
+
+
+class InfoJobsConnector:
+    """Conector para InfoJobs (Albacete, Teletrabajo y RSS de respaldo)."""
+    URLS = [
+        ("InfoJobs Albacete Sistemas", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword=sistemas&provinceIds=3"),
+        ("InfoJobs Albacete General", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?provinceIds=3"),
+        ("InfoJobs Teletrabajo Sistemas", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword=sistemas&teleworkingIds=2"),
+    ]
+    RSS_URL = "https://www.infojobs.net/trabajos.rss"
+
+    def fetch(self) -> List[Dict[str, Any]]:
+        ofertas = []
+        urls_vistas = set()
+
+        for nombre, url in self.URLS:
+            logger.info("Consultando %s...", nombre)
+            try:
+                resp = requests.get(url, headers=HTTP_HEADERS, timeout=15)
+                if resp.status_code != 200:
+                    continue
+                match = re.search(r'window\.__INITIAL_PROPS__\s*=\s*JSON\.parse\("(.*?)"\);', resp.text)
+                if match:
+                    raw_json = match.group(1).encode('utf-8').decode('unicode_escape')
+                    data = json.loads(raw_json)
+                    offers = data.get("offers", [])
+                    for of in offers:
+                        link = of.get("link", "")
+                        if link.startswith("//"):
+                            link = f"https:{link}"
+                        link_clean = link.split("?")[0] if link else ""
+                        if not link_clean or link_clean in urls_vistas:
+                            continue
+                        urls_vistas.add(link_clean)
+
+                        puesto = of.get("title", "Sin título").strip()
+                        empresa = of.get("companyName") or of.get("author", {}).get("name") or "Empresa Confidencial"
+                        ciudad = of.get("city", "España")
+                        teleworking = of.get("teleworking", "")
+                        modalidad = "REMOTO" if any(r in str(teleworking).lower() for r in ["remoto", "teletrabajo"]) else "PRESENCIAL"
+                        horario = of.get("workday", "No especificado")
+                        salario = of.get("salaryDescription") or "No especificado"
+                        desc = of.get("description", "") or puesto
+
+                        ofertas.append({
+                            "id": generar_hash(empresa, puesto, link_clean),
+                            "puesto": puesto,
+                            "empresa": empresa,
+                            "ubicacion": ciudad,
+                            "modalidad": modalidad,
+                            "horario": horario,
+                            "salario": salario,
+                            "url": link,
+                            "fuente": "InfoJobs",
+                            "descripcion": desc,
+                            "fecha_publicacion": of.get("publishedAt", "")
+                        })
+            except Exception as e:
+                logger.warning("Error en %s: %s", nombre, e)
+
+        if len(ofertas) < 5:
+            logger.info("Consultando RSS de respaldo de InfoJobs...")
+            try:
+                r_rss = requests.get(self.RSS_URL, headers=HTTP_HEADERS, timeout=10)
+                if r_rss.status_code == 200:
+                    feed = feedparser.parse(r_rss.content)
+                    for entry in feed.entries:
+                        link = entry.get("link", "").strip()
+                        link_clean = link.split("?")[0] if link else ""
+                        if not link_clean or link_clean in urls_vistas:
+                            continue
+                        urls_vistas.add(link_clean)
+
+                        puesto = entry.get("title", "").strip()
+                        raw_desc = entry.get("description", "")
+                        empresa = "InfoJobs"
+                        m_emp = re.search(r'<strong>Empresa</strong>:\s*(?:<[^>]+>)?([^<]+)', raw_desc)
+                        if m_emp:
+                            empresa = m_emp.group(1).strip()
+
+                        ofertas.append({
+                            "id": generar_hash(empresa, puesto, link_clean),
+                            "puesto": puesto,
+                            "empresa": empresa,
+                            "ubicacion": "España",
+                            "modalidad": "No especificada",
+                            "horario": "No especificado",
+                            "salario": "No especificado",
+                            "url": link,
+                            "fuente": "InfoJobs",
+                            "descripcion": limpiar_html(raw_desc),
+                            "fecha_publicacion": entry.get("published", "")
+                        })
+            except Exception as e:
+                logger.warning("Error en RSS de InfoJobs: %s", e)
+
+        logger.info("InfoJobs: %d ofertas recopiladas.", len(ofertas))
+        return ofertas
+
+
+class LinkedInConnector:
+    """Conector para LinkedIn Jobs mediante la API pública guest search."""
+    URLS = [
+        ("LinkedIn Albacete Sistemas", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=sistemas&location=Albacete%2C%20Castile-La%20Mancha%2C%20Spain"),
+        ("LinkedIn Albacete Soporte", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=soporte&location=Albacete"),
+        ("LinkedIn Albacete Mantenimiento", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=mantenimiento%20electronico&location=Albacete"),
+        ("LinkedIn Teletrabajo Sistemas", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=administrador%20sistemas&location=Spain&f_WT=2"),
+        ("LinkedIn Teletrabajo Sysadmin", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=sysadmin&location=Spain&f_WT=2"),
+        ("LinkedIn España Aviónica", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=avionica&location=Spain")
+    ]
+
+    def fetch(self) -> List[Dict[str, Any]]:
+        ofertas = []
+        urls_vistas = set()
+
+        for nombre, url in self.URLS:
+            logger.info("Consultando %s...", nombre)
+            try:
+                resp = requests.get(url, headers=HTTP_HEADERS, timeout=15)
+                if resp.status_code != 200:
+                    continue
+                soup = BeautifulSoup(resp.text, "html.parser")
+                items = soup.find_all("li")
+                for it in items:
+                    link_elem = it.find("a", class_="base-card__full-link")
+                    if not link_elem or not link_elem.get("href"):
+                        continue
+                    full_link = link_elem["href"].strip()
+                    clean_url = full_link.split("?")[0]
+                    if clean_url in urls_vistas:
+                        continue
+                    urls_vistas.add(clean_url)
+
+                    title_elem = it.find("h3", class_="base-search-card__title")
+                    puesto = title_elem.text.strip() if title_elem else "Sin título"
+
+                    comp_elem = it.find("h4", class_="base-search-card__subtitle")
+                    empresa = comp_elem.text.strip() if comp_elem else "Empresa Confidencial"
+
+                    loc_elem = it.find("span", class_="job-search-card__location")
+                    ubicacion = loc_elem.text.strip() if loc_elem else "España"
+
+                    time_elem = it.find("time")
+                    fecha = time_elem.get("datetime", "") if time_elem else ""
+
+                    modalidad = "REMOTO" if "f_WT=2" in url else "PRESENCIAL / HÍBRIDO"
+
+                    ofertas.append({
+                        "id": generar_hash(empresa, puesto, clean_url),
+                        "puesto": puesto,
+                        "empresa": empresa,
+                        "ubicacion": ubicacion,
+                        "modalidad": modalidad,
+                        "horario": "No especificado",
+                        "salario": "No especificado",
+                        "url": clean_url,
+                        "fuente": "LinkedIn",
+                        "descripcion": f"{puesto} en {empresa}. Ubicación: {ubicacion}.",
+                        "fecha_publicacion": fecha
+                    })
+            except Exception as e:
+                logger.warning("Error en %s: %s", nombre, e)
+
+        logger.info("LinkedIn: %d ofertas recopiladas.", len(ofertas))
+        return ofertas
+
+
+class IndeedConnector:
+    """Conector para Indeed España mediante emulación TLS de navegador (curl_cffi)."""
+    URLS = [
+        ("Indeed Albacete Sistemas", "https://es.indeed.com/jobs?q=sistemas&l=Albacete"),
+        ("Indeed Albacete Soporte", "https://es.indeed.com/jobs?q=soporte+or+redes&l=Albacete"),
+        ("Indeed Remoto Sistemas", "https://es.indeed.com/jobs?q=administrador+sistemas&l=remoto"),
+        ("Indeed España Aviónica", "https://es.indeed.com/jobs?q=avionica+or+electronica&l=España")
+    ]
+
+    def fetch(self) -> List[Dict[str, Any]]:
+        ofertas = []
+        seen_jks = set()
+        client = cffi_requests if cffi_requests else requests
+
+        for nombre, url in self.URLS:
+            logger.info("Consultando %s...", nombre)
+            try:
+                if cffi_requests:
+                    resp = client.get(url, impersonate="chrome120", timeout=15)
+                else:
+                    resp = client.get(url, headers=HTTP_HEADERS, timeout=15)
+
+                if resp.status_code != 200:
+                    logger.warning("Indeed respondió con status %s en %s", resp.status_code, nombre)
+                    continue
+
+                soup = BeautifulSoup(resp.text, "html.parser")
+                links = [a for a in soup.find_all("a", href=True) if "jk=" in a["href"]]
+
+                for a in links:
+                    m = re.search(r'jk=([a-zA-Z0-9]+)', a["href"])
+                    if not m:
+                        continue
+                    jk = m.group(1)
+                    if jk in seen_jks:
+                        continue
+                    seen_jks.add(jk)
+
+                    title = a.get_text().strip()
+                    parent = a
+                    for _ in range(6):
+                        if parent.parent:
+                            parent = parent.parent
+                    contenedor_texto = re.sub(r'\s+', ' ', parent.get_text()).strip()
+
+                    empresa = "Empresa Confidencial"
+                    cmp_match = re.search(r'&cmp=([^&]+)', a["href"])
+                    if cmp_match:
+                        empresa = urllib.parse.unquote_plus(cmp_match.group(1))
+
+                    job_url = f"https://es.indeed.com/viewjob?jk={jk}"
+                    ubicacion = "Albacete" if "albacete" in url.lower() else "Remoto España"
+                    modalidad = "REMOTO" if "remoto" in url.lower() else "PRESENCIAL / HÍBRIDO"
+
+                    salario = "No especificado"
+                    sal_match = re.search(r'(\d{1,2}(?:\.\d{3})*(?:[,\.]\d+)?\s*€(?:\s*(?:al\s*año|al\s*mes|a\s*la\s*hora))?)', contenedor_texto)
+                    if sal_match:
+                        salario = sal_match.group(1)
+
+                    if not title or len(title) < 3 or "sueldos de" in title.lower():
+                        title = contenedor_texto.split("domestiko")[0].split("EUROPREVEN")[0].strip()[:80] or "Puesto Técnico"
+
+                    ofertas.append({
+                        "id": generar_hash(empresa, title, job_url),
+                        "puesto": title,
+                        "empresa": empresa,
+                        "ubicacion": ubicacion,
+                        "modalidad": modalidad,
+                        "horario": "No especificado",
+                        "salario": salario,
+                        "url": job_url,
+                        "fuente": "Indeed",
+                        "descripcion": contenedor_texto[:600],
+                        "fecha_publicacion": ""
+                    })
+            except Exception as e:
+                logger.warning("Error en %s: %s", nombre, e)
+
+        logger.info("Indeed: %d ofertas recopiladas.", len(ofertas))
+        return ofertas
+
+
+class JobTodayConnector:
+    """Conector para Job Today (Albacete, Teletrabajo y puestos operativos)."""
+    URLS = [
+        ("Job Today Albacete", "https://jobtoday.com/es/trabajos-albacete"),
+        ("Job Today Teletrabajo", "https://jobtoday.com/es/trabajos-teletrabajo"),
+        ("Job Today Sistemas", "https://jobtoday.com/es/trabajos?q=sistemas"),
+        ("Job Today Soporte", "https://jobtoday.com/es/trabajos?q=soporte")
+    ]
+
+    def fetch(self) -> List[Dict[str, Any]]:
+        ofertas = []
+        urls_vistas = set()
+
+        for nombre, url in self.URLS:
+            logger.info("Consultando %s...", nombre)
+            try:
+                resp = requests.get(url, headers=HTTP_HEADERS, timeout=15)
+                if resp.status_code != 200:
+                    continue
+                soup = BeautifulSoup(resp.text, "html.parser")
+                s = soup.find("script", id="__NEXT_DATA__")
+                if not s or not s.string:
+                    continue
+                jt_json = json.loads(s.string)
+                props = jt_json.get("props", {}).get("pageProps", {})
+                feed = props.get("feed", {})
+                sections = feed.get("sections", [])
+
+                for sec in sections:
+                    if sec.get("type") != "items":
+                        continue
+                    items = sec.get("items", [])
+                    for it in items:
+                        p = it.get("payload", {})
+                        if not p:
+                            continue
+                        role = p.get("role") or p.get("title")
+                        if not role:
+                            continue
+                        
+                        can_url = p.get("canonicalUrl") or p.get("slug") or ""
+                        if not can_url:
+                            key = p.get("key", "")
+                            can_url = f"/es/trabajo/{key}" if key else ""
+                        if can_url.startswith("/"):
+                            job_url = f"https://jobtoday.com{can_url}"
+                        else:
+                            job_url = can_url
+
+                        if not job_url or job_url in urls_vistas:
+                            continue
+                        urls_vistas.add(job_url)
+
+                        empresa = p.get("companyName") or (p.get("company") or {}).get("name") or "Empresa Confidencial"
+                        desc = p.get("description") or p.get("descriptionDeMarkdown") or role
+                        direccion = p.get("address") or ""
+                        addr_info = p.get("addressInfo") or {}
+                        ciudad = addr_info.get("display", {}).get("city") or direccion or "España"
+
+                        modalidad = "REMOTO" if "teletrabajo" in url.lower() or "remoto" in desc.lower() else "PRESENCIAL"
+                        salario = p.get("salary") or "No especificado"
+
+                        ofertas.append({
+                            "id": generar_hash(empresa, role, job_url),
+                            "puesto": role.strip(),
+                            "empresa": empresa.strip(),
+                            "ubicacion": ciudad,
+                            "modalidad": modalidad,
+                            "horario": "No especificado",
+                            "salario": str(salario) if salario else "No especificado",
+                            "url": job_url,
+                            "fuente": "Job Today",
+                            "descripcion": limpiar_html(desc),
+                            "fecha_publicacion": p.get("createDate", "") or p.get("updateDate", "")
+                        })
+            except Exception as e:
+                logger.warning("Error en %s: %s", nombre, e)
+
+        logger.info("Job Today: %d ofertas recopiladas.", len(ofertas))
+        return ofertas
 
 
 # =====================================================================
@@ -746,16 +1056,21 @@ class JobAgent:
         self.matcher = ProfileMatcher()
         self.telegram = TelegramDispatcher()
         
-        # Conectores desacoplados
+        # Conectores desacoplados: 5 portales solicitados por Pedro
         self.connectors = [
-            RemotiveConnector(),
-            TecnoempleoRSSConnector(),
-            WeWorkRemotelyConnector()
+            TecnoempleoConnector(),
+            InfoJobsConnector(),
+            LinkedInConnector(),
+            IndeedConnector(),
+            JobTodayConnector()
         ]
 
     def ejecutar(self):
         logger.info("=== INICIANDO AGENTE DE BÚSQUEDA DE EMPLEO ===")
         ahora_str = datetime.now(timezone.utc).strftime("%d/%m/%Y %H:%M UTC")
+
+        # 0. Asegurar coherencia histórica de la base de datos con los filtros actuales
+        self.db.reclasificar_bd(self.matcher)
 
         # 1. Ingesta de todas las fuentes
         todas_ofertas = []
@@ -940,4 +1255,9 @@ class JobAgent:
 
 if __name__ == "__main__":
     agent = JobAgent()
-    agent.ejecutar()
+    if "--reclasificar" in sys.argv:
+        count = agent.db.reclasificar_bd(agent.matcher)
+        agent.db.exportar_json()
+        print(f"Reclasificación completada: {count} ofertas actualizadas. Archivo ofertas.json sincronizado.")
+    else:
+        agent.ejecutar()

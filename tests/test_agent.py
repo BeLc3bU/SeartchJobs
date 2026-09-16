@@ -92,6 +92,22 @@ class TestProfileMatcher(unittest.TestCase):
         self.assertEqual(res["clasificacion"], "A")
         self.assertTrue(any("Administración" in c or "contable" in c for c in res["requisitos_cumple"]))
 
+    def test_descarte_idioma_ingles(self):
+        oferta = {
+            "puesto": "Senior Systems Engineer / Linux Sysadmin",
+            "descripcion": "We are looking for a senior systems administrator to join our remote team. Requirements: 5 years experience with Linux, Kubernetes, AWS, and networking. Fully remote from Spain or worldwide.",
+            "ubicacion": "Remote (Spain)",
+            "modalidad": "REMOTO",
+            "horario": "FLEXIBLE"
+        }
+        res = self.matcher.evaluar_oferta(oferta)
+        self.assertEqual(res["clasificacion"], "C")
+        self.assertIn("solo ofertas en español", res["motivo"])
+
+    def test_filtro_idioma_espanol_valido(self):
+        self.assertTrue(self.matcher._es_idioma_espanol("Buscamos un técnico de sistemas y redes para incorporación en nuestro equipo"))
+        self.assertFalse(self.matcher._es_idioma_espanol("We are looking for an experienced software developer to join our engineering team"))
+
 
 class TestDatabaseAndDeduplication(unittest.TestCase):
     def setUp(self):
@@ -139,6 +155,28 @@ class TestDatabaseAndDeduplication(unittest.TestCase):
         self.assertEqual(recientes[0]["requisitos_cumple"], ["Linux", "Python"])
 
 
+class TestJobAgentConnectors(unittest.TestCase):
+    def test_cinco_portales_configurados(self):
+        from job_agent import (
+            JobAgent,
+            TecnoempleoConnector,
+            InfoJobsConnector,
+            LinkedInConnector,
+            IndeedConnector,
+            JobTodayConnector
+        )
+        agent = JobAgent()
+        clases_conectores = [c.__class__.__name__ for c in agent.connectors]
+        
+        # Verificar que exactamente los 5 portales solicitados están presentes
+        self.assertIn("TecnoempleoConnector", clases_conectores)
+        self.assertIn("InfoJobsConnector", clases_conectores)
+        self.assertIn("LinkedInConnector", clases_conectores)
+        self.assertIn("IndeedConnector", clases_conectores)
+        self.assertIn("JobTodayConnector", clases_conectores)
+        self.assertEqual(len(agent.connectors), 5)
+
+
 class TestTelegramFormatting(unittest.TestCase):
     def test_formatear_oferta(self):
         dispatcher = TelegramDispatcher()
@@ -154,7 +192,7 @@ class TestTelegramFormatting(unittest.TestCase):
             "requisitos_verificar": [],
             "motivo": "Excelente adecuación a simuladores C-101 y sistemas críticos.",
             "url": "https://ofertas.example.com/simulacion",
-            "fuente": "Tecnoempleo RSS"
+            "fuente": "Tecnoempleo"
         }
         html = dispatcher.formatear_oferta_html(oferta)
         self.assertIn("Especialista en Simulación y Electrónica", html)
