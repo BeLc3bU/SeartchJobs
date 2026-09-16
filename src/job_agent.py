@@ -1296,6 +1296,7 @@ class JobAgent:
                     respuesta = (
                         "👋 <b>Hola Pedro. Soy tu Agente de Búsqueda de Empleo.</b>\n\n"
                         "Comandos disponibles:\n"
+                        "• /ofertas - Explorar todas las ofertas interactivamente (Anterior/Siguiente)\n"
                         "• /resumen - Conteo de ofertas por estado y clase\n"
                         "• /interesantes - Ver tus ofertas guardadas\n"
                         "• /interesante_&lt;hash&gt; - Marcar oferta como interesante\n"
@@ -1304,6 +1305,28 @@ class JobAgent:
                         "• /buscar - Ejecutar búsqueda inmediata de ofertas"
                     )
                     self.telegram.enviar_mensaje(respuesta)
+
+                elif texto.startswith("/ofertas"):
+                    ofertas = self.db.obtener_nuevas_relevantes(horas=720)
+                    if not ofertas:
+                        self.telegram.enviar_mensaje("⚠️ No se encontraron ofertas activas en la base de datos.")
+                    else:
+                        of = ofertas[0]
+                        total = len(ofertas)
+                        h = of['id'][:8]
+                        card = self.telegram.formatear_oferta_html(of)
+                        keyboard = [
+                            [
+                                {"text": "⏮️ Inicio", "callback_data": "of_noop"},
+                                {"text": f"📄 1 / {total}", "callback_data": "of_noop"},
+                                {"text": "Siguiente ➡️" if total > 1 else "Fin ⏭️", "callback_data": "of_1" if total > 1 else "of_noop"}
+                            ],
+                            [
+                                {"text": "🔗 Ver Oferta", "url": of['url']},
+                                {"text": "⭐ Interesante", "callback_data": f"fav_{h}"}
+                            ]
+                        ]
+                        self.telegram.enviar_mensaje(card, inline_keyboard=keyboard)
 
                 elif texto.startswith("/resumen"):
                     res = self.db.obtener_resumen()
