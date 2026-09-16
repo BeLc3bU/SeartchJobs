@@ -19,18 +19,30 @@ class TestProfileMatcher(unittest.TestCase):
     def setUp(self):
         self.matcher = ProfileMatcher()
 
-    def test_remoto_espana_sysadmin_clase_a(self):
+    def test_remoto_espana_sysadmin_parcial_tarde_clase_a(self):
         oferta = {
             "puesto": "Administrador de Sistemas Linux y Redes",
-            "descripcion": "Buscamos un administrador de sistemas con experiencia en Debian, Ubuntu, gestión de Active Directory, firewall y soporte L3. Trabajo 100% remoto desde España.",
+            "descripcion": "Buscamos un administrador de sistemas con experiencia en Debian, Ubuntu, Active Directory. Modalidad: 100% teletrabajo en tiempo parcial tardes.",
             "ubicacion": "Remoto España",
             "modalidad": "REMOTO",
-            "horario": "FLEXIBLE"
+            "horario": "Tiempo parcial por la tarde"
         }
         res = self.matcher.evaluar_oferta(oferta)
         self.assertEqual(res["clasificacion"], "A")
         self.assertTrue(any("Linux" in c or "sistemas" in c for c in res["requisitos_cumple"]))
         self.assertEqual(len(res["requisitos_verificar"]), 0)
+
+    def test_descarte_jornada_completa(self):
+        oferta = {
+            "puesto": "Administrador de Sistemas Linux y Redes",
+            "descripcion": "Puesto 100% remoto en España. Jornada completa de 40 horas semanales de lunes a viernes.",
+            "ubicacion": "Remoto España",
+            "modalidad": "REMOTO",
+            "horario": "Jornada completa"
+        }
+        res = self.matcher.evaluar_oferta(oferta)
+        self.assertEqual(res["clasificacion"], "C")
+        self.assertIn("tiempo completo", res["motivo"].lower())
 
     def test_descarte_presencial_madrid(self):
         oferta = {
@@ -38,11 +50,11 @@ class TestProfileMatcher(unittest.TestCase):
             "descripcion": "Puesto presencial obligatorio en nuestras oficinas centrales de Madrid.",
             "ubicacion": "Madrid",
             "modalidad": "PRESENCIAL",
-            "horario": "Jornada completa"
+            "horario": "Media jornada tarde"
         }
         res = self.matcher.evaluar_oferta(oferta)
         self.assertEqual(res["clasificacion"], "C")
-        self.assertIn("Descartada por restricciones de ubicación/horario", res["motivo"])
+        self.assertIn("restricciones de ubicación", res["motivo"].lower())
 
     def test_descarte_albacete_turno_manana(self):
         oferta = {
@@ -54,7 +66,7 @@ class TestProfileMatcher(unittest.TestCase):
         }
         res = self.matcher.evaluar_oferta(oferta)
         self.assertEqual(res["clasificacion"], "C")
-        self.assertIn("mañana", res["motivo"].lower())
+        self.assertIn("turno de mañana", res["motivo"].lower())
 
     def test_albacete_turno_tarde_avionica_clase_a(self):
         oferta = {
@@ -68,25 +80,36 @@ class TestProfileMatcher(unittest.TestCase):
         self.assertEqual(res["clasificacion"], "A")
         self.assertTrue(any("Aviónica" in c or "hardware" in c for c in res["requisitos_cumple"]))
 
-    def test_remoto_verificacion_certificacion_clase_b(self):
+    def test_remoto_fin_de_semana_clase_a(self):
         oferta = {
-            "puesto": "Técnico de Redes y Seguridad",
-            "descripcion": "Gestión de redes WAN, switches Cisco, VPN y firewall. Requisito deseable o certificación oficial Cisco CCNA o Azure. Modalidad teletrabajo.",
+            "puesto": "Operador de Sistemas y Soporte IT",
+            "descripcion": "Monitorización y soporte de sistemas los fines de semana (sábados y domingos). 100% teletrabajo.",
             "ubicacion": "España",
             "modalidad": "REMOTO",
-            "horario": "FLEXIBLE"
+            "horario": "Fin de semana"
+        }
+        res = self.matcher.evaluar_oferta(oferta)
+        self.assertEqual(res["clasificacion"], "A")
+
+    def test_remoto_horario_no_especificado_clase_b(self):
+        oferta = {
+            "puesto": "Técnico de Redes y Seguridad",
+            "descripcion": "Gestión de redes WAN, switches Cisco, VPN y firewall. Modalidad teletrabajo.",
+            "ubicacion": "España",
+            "modalidad": "REMOTO",
+            "horario": "No especificado"
         }
         res = self.matcher.evaluar_oferta(oferta)
         self.assertEqual(res["clasificacion"], "B")
-        self.assertTrue(any("CCNA" in v or "Azure" in v for v in res["requisitos_verificar"]))
+        self.assertTrue(any("tiempo parcial" in v or "fin de semana" in v for v in res["requisitos_verificar"]))
 
-    def test_remoto_administrativo_contable_clase_a(self):
+    def test_remoto_administrativo_contable_tarde_clase_a(self):
         oferta = {
             "puesto": "Auxiliar Administrativo y Gestión Documental",
-            "descripcion": "Gestión de facturación, albaranes, pedidos y conciliación bancaria con Excel y ERP. Puesto 100% teletrabajo.",
+            "descripcion": "Gestión de facturación, albaranes, pedidos y conciliación bancaria con Excel y ERP. Horario vespertino de tardes. Puesto 100% teletrabajo.",
             "ubicacion": "España",
             "modalidad": "REMOTO",
-            "horario": "FLEXIBLE"
+            "horario": "Turno de tarde"
         }
         res = self.matcher.evaluar_oferta(oferta)
         self.assertEqual(res["clasificacion"], "A")
@@ -98,7 +121,7 @@ class TestProfileMatcher(unittest.TestCase):
             "descripcion": "We are looking for a senior systems administrator to join our remote team. Requirements: 5 years experience with Linux, Kubernetes, AWS, and networking. Fully remote from Spain or worldwide.",
             "ubicacion": "Remote (Spain)",
             "modalidad": "REMOTO",
-            "horario": "FLEXIBLE"
+            "horario": "Part-time afternoon"
         }
         res = self.matcher.evaluar_oferta(oferta)
         self.assertEqual(res["clasificacion"], "C")
@@ -110,7 +133,7 @@ class TestProfileMatcher(unittest.TestCase):
             "descripcion": "Buscamos un ingeniero civil para diseño estructural. Imprescindible carrera universitaria o máster en ingeniería de caminos/civil.",
             "ubicacion": "Madrid",
             "modalidad": "REMOTO",
-            "horario": "FLEXIBLE"
+            "horario": "Media jornada tarde"
         }
         res = self.matcher.evaluar_oferta(oferta)
         self.assertEqual(res["clasificacion"], "C")
@@ -128,13 +151,13 @@ class TestProfileMatcher(unittest.TestCase):
         self.assertEqual(res["clasificacion"], "C")
         self.assertIn("Profesión no afín", res["motivo"])
 
-    def test_acepta_grado_superior_asir(self):
+    def test_acepta_grado_superior_asir_tiempo_parcial(self):
         oferta = {
             "puesto": "Técnico de Sistemas y Redes (ASIR / Grado Superior)",
-            "descripcion": "Buscamos técnico informático con Formación Profesional Grado Superior (ASIR) para administración de Linux, Active Directory, soporte técnico y redes. 100% teletrabajo.",
+            "descripcion": "Buscamos técnico informático con Formación Profesional Grado Superior (ASIR) para administración de Linux, Active Directory, soporte técnico y redes. Jornada parcial 20 horas semanales por la tarde. 100% teletrabajo.",
             "ubicacion": "España",
             "modalidad": "REMOTO",
-            "horario": "FLEXIBLE"
+            "horario": "Tiempo parcial"
         }
         res = self.matcher.evaluar_oferta(oferta)
         self.assertEqual(res["clasificacion"], "A")
@@ -185,6 +208,57 @@ class TestDatabaseAndDeduplication(unittest.TestCase):
         self.assertEqual(recientes[0]["id"], h)
         self.assertEqual(recientes[0]["clasificacion"], "A")
         self.assertEqual(recientes[0]["requisitos_cumple"], ["Linux", "Python"])
+
+    def test_purgar_base_datos(self):
+        h = generar_hash("EmpresaPurga", "PuestoPurga", "https://test.com/purga")
+        oferta = {
+            "id": h,
+            "puesto": "Puesto Purga",
+            "empresa": "EmpresaPurga",
+            "ubicacion": "Remoto",
+            "modalidad": "REMOTO",
+            "horario": "FLEXIBLE",
+            "salario": "25.000€",
+            "url": "https://test.com/purga",
+            "fuente": "Test Source",
+            "clasificacion": "A",
+            "requisitos_cumple": [],
+            "requisitos_verificar": [],
+            "motivo": "Test",
+            "fecha_publicacion": "2026-09-16"
+        }
+        self.db.guardar_oferta(oferta)
+        self.assertTrue(self.db.existe_oferta(h))
+
+        borradas = self.db.purgar()
+        self.assertEqual(borradas, 1)
+        self.assertFalse(self.db.existe_oferta(h))
+
+    def test_purgar_semanal_si_procede(self):
+        from datetime import datetime, timezone, timedelta
+        # Cuando se inicializa por primera vez, no purga inmediatamente
+        purgado = self.db.purgar_semanal_si_procede(dias=7)
+        self.assertFalse(purgado)
+
+        # Si simulamos que la última purga fue hace 8 días
+        hace_8_dias = (datetime.now(timezone.utc) - timedelta(days=8)).isoformat()
+        with self.db._get_connection() as conn:
+            c = conn.cursor()
+            c.execute("INSERT OR REPLACE INTO metadata (clave, valor) VALUES ('ultima_purga', ?)", (hace_8_dias,))
+            conn.commit()
+
+        # Guardamos una oferta de prueba
+        h = generar_hash("EmpresaVieja", "PuestoViejo", "https://test.com/vieja")
+        self.db.guardar_oferta({
+            "id": h, "puesto": "Viejo", "empresa": "EmpresaVieja", "url": "https://test.com/vieja",
+            "clasificacion": "A"
+        })
+        self.assertTrue(self.db.existe_oferta(h))
+
+        # Al llamar de nuevo, debe detectar que han pasado > 7 días y purgar
+        purgado = self.db.purgar_semanal_si_procede(dias=7)
+        self.assertTrue(purgado)
+        self.assertFalse(self.db.existe_oferta(h))
 
 
 class TestJobAgentConnectors(unittest.TestCase):

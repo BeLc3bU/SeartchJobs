@@ -59,7 +59,8 @@ class BotListener:
                 "• /buscar — 🚀 Rastrear nuevas ofertas ahora en vivo\n"
                 "• /interesante_&lt;hash&gt; — Guardar vacante\n"
                 "• /solicitada_&lt;hash&gt; — Marcar como enviada\n"
-                "• /descartar_&lt;hash&gt; — Descartar vacante"
+                "• /descartar_&lt;hash&gt; — Descartar vacante\n"
+                "• /purgar — 🧹 Limpiar y renovar toda la base de datos"
             )
             self.telegram.enviar_mensaje(msg)
 
@@ -128,6 +129,14 @@ class BotListener:
                 self.telegram.enviar_mensaje(f"🗑️ Oferta <b>{of['puesto']}</b> ({of['empresa']}) <b>DESCARTADA</b>.")
             else:
                 self.telegram.enviar_mensaje(f"⚠️ No se encontró la oferta con hash '{h}'.")
+
+        elif texto in ("/purgar", "/limpiar"):
+            total = self.db.purgar()
+            self.telegram.enviar_mensaje(
+                f"🧹 <b>Base de datos purgada con éxito.</b>\n"
+                f"Se han eliminado {total} ofertas registradas.\n"
+                f"La base de datos queda limpia y lista para nuevas búsquedas."
+            )
 
     def enviar_ultimas_ofertas(self, limite: int = 4):
         """Recupera y envía las mejores ofertas activas con enlaces directos y botones de acción."""

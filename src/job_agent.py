@@ -103,6 +103,13 @@ class DatabaseManager:
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_ofertas_estado ON ofertas(estado)")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_ofertas_fecha ON ofertas(fecha_procesada)")
 
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS metadata (
+                    clave TEXT PRIMARY KEY,
+                    valor TEXT NOT NULL
+                )
+            """)
+
             # Migración: asegurar que la columna descripcion existe
             cursor.execute("PRAGMA table_info(ofertas)")
             cols = [col[1] for col in cursor.fetchall()]
@@ -192,6 +199,58 @@ class DatabaseManager:
                 d = dict(f)
                 d["requisitos_cumple"] = json.loads(d["requisitos_cumple"] or "[]")
                 d["requisitos_verificar"] = json.loads(d["requisitos_verificar"] or "[]")
+                res.append(d)
+            return res
+
+    def purgar(self) -> int:
+        """Elimina todas las ofertas de la base de datos y restablece ofertas.json."""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM ofertas")
+            total = cursor.fetchone()[0]
+            cursor.execute("DELETE FROM ofertas")
+            cursor.execute("INSERT OR REPLACE INTO metadata (clave, valor) VALUES ('ultima_purga', ?)",
+                           (datetime.now(timezone.utc).isoformat(),))
+            conn.commit()
+            cursor.execute("VACUUM")
+            conn.commit()
+
+        self.exportar_json()
+        logger.info("Base de datos purgada: %d ofertas eliminadas.", total)
+        return total
+
+    def purgar_semanal_si_procede(self, dias: int = 7) -> bool:
+        """
+        Verifica si han transcurrido 'dias' (7 por defecto) desde la última purga.
+        Si es así, purga la base de datos para mantenerla limpia y actualizada semanalmente.
+        """
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT valor FROM metadata WHERE clave = 'ultima_purga'")
+            fila = cursor.fetchone()
+
+        if not fila:
+            # Primera vez que se registra: inicializar fecha para que purgue tras 7 días
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("INSERT OR REPLACE INTO metadata (clave, valor) VALUES ('ultima_purga', ?)",
+                               (datetime.now(timezone.utc).isoformat(),))
+                conn.commit()
+            return False
+
+        try:
+            ultima_fecha = datetime.fromisoformat(fila["valor"])
+            if ultima_fecha.tzinfo is None:
+                ultima_fecha = ultima_fecha.replace(tzinfo=timezone.utc)
+            diferencia = datetime.now(timezone.utc) - ultima_fecha
+            if diferencia >= timedelta(days=dias):
+                logger.info("Han pasado %d días desde la última purga (%s). Ejecutando purga semanal...", diferencia.days, fila["valor"])
+                self.purgar()
+                return True
+        except Exception as e:
+            logger.warning("Error al evaluar fecha de última purga: %s", e)
+
+        return False
     def obtener_ultimas_activas(self, limite: int = 5, clasificacion: Optional[str] = None) -> List[Dict[str, Any]]:
         with self._get_connection() as conn:
             cursor = conn.cursor()
@@ -473,29 +532,93 @@ class ProfileMatcher:
             return True
         return False
 
+    def _es_tiempo_completo(self, texto: str, horario: str) -> Tuple[bool, str]:
+        """
+        Detecta y descarta tajantemente cualquier puesto a tiempo completo / jornada completa (40h/semana).
+        """
+        t_completo = f"{texto} {horario}".lower()
+
+        # Descarte directo si el campo o texto indica jornada completa / 40h
+        patrones_completo = [
+            r'\bjornada completa\b',
+            r'\btiempo completo\b',
+            r'\bfull[- ]?time\b',
+            r'\b40\s*h(?:oras)?(?:/(?:sem|semana))?\b',
+            r'\b40\s*horas\s*semanales\b',
+            r'\bdedicaci[oó]n exclusiva\b',
+            r'\bturno partido\b',
+            r'\bjornada partida\b',
+            r'\b8\s*horas diarios?\b',
+            r'\b8\s*horas al d[íi]a\b'
+        ]
+        for pat in patrones_completo:
+            if re.search(pat, t_completo):
+                return True, f"Oferta a tiempo completo / jornada completa detectada ({pat})"
+
+        return False, ""
+
+    def _evaluar_compatibilidad_horaria(self, texto: str, ubicacion: str, modalidad: str, horario: str) -> Tuple[bool, str, bool]:
+        """
+        Determina si la oferta es compatible con tiempo parcial por la tarde y/o fin de semana.
+        Retorna: (es_compatible, motivo, requiere_verificar_horario)
+        """
+        t_completo = f"{texto} {ubicacion} {modalidad} {horario}".lower()
+
+        # 1. Comprobación de tiempo completo / 40h
+        es_tc, motivo_tc = self._es_tiempo_completo(texto, horario)
+        if es_tc:
+            return False, motivo_tc, False
+
+        # 2. Comprobación de turno de mañana incompatible
+        es_turno_manana = any(m in t_completo for m in [
+            "turno de mañana", "solo mañanas", "horario de mañana",
+            "08:00 a 14:00", "09:00 a 14:00", "08:00 a 15:00", "09:00 a 15:00"
+        ])
+        
+        # 3. Menciones explícitas favorables:
+        # A) Tiempo parcial / media jornada / horas
+        es_tiempo_parcial = any(tp in t_completo for tp in [
+            "tiempo parcial", "media jornada", "jornada parcial", "part-time", "part time",
+            "por horas", "horas semanales", "20h", "20 horas", "15h", "15 horas", "10h", "10 horas",
+            "25h", "25 horas", "30h", "30 horas", "media jornada tarde", "parcial tardes"
+        ])
+
+        # B) Turno de tarde / vespertino
+        es_turno_tarde = any(t in t_completo for t in [
+            "turno de tarde", "tardes", "horario de tarde", "vespertino", "de tarde",
+            "15:00 a", "16:00 a", "17:00 a", "14:00 a 22:00", "15:00 a 23:00"
+        ])
+
+        # C) Fin de semana
+        es_fin_de_semana = any(f in t_completo for f in [
+            "fin de semana", "fines de semana", "sábados", "sabados", "domingos",
+            "sabado y domingo", "sábado y domingo", "guardias de fin de semana", "weekend"
+        ])
+
+        if es_turno_manana and not (es_turno_tarde or es_fin_de_semana):
+            return False, "Horario exclusivo en turno de mañana (incompatible con tardes)", False
+
+        # Si explícitamente cumple tarde, parcial o fin de semana:
+        if es_tiempo_parcial or es_turno_tarde or es_fin_de_semana:
+            detalles = []
+            if es_tiempo_parcial: detalles.append("Tiempo parcial / media jornada")
+            if es_turno_tarde: detalles.append("Turno de tarde")
+            if es_fin_de_semana: detalles.append("Fin de semana")
+            return True, " + ".join(detalles), False
+
+        # Si el horario no está especificado:
+        # En remoto o local, si no indica tiempo completo ni mañana, se admite como potencial (Clase B a verificar)
+        return True, "Horario no especificado (a verificar si permite parcial tardes o fin de semana)", True
+
     def _es_local_tarde(self, texto: str, ubicacion: str, horario: str) -> Tuple[bool, str]:
         """
-        Determina si es presencial/híbrido en Albacete o Hellín y si es compatible con turno de tarde.
-        Descarta tajantemente turnos de mañana o jornada partida clásica presencial.
+        Determina si es presencial/híbrido en Albacete o Hellín.
         """
         t_completo = f"{texto} {ubicacion} {horario}".lower()
-
         es_local = any(loc in t_completo for loc in self.LOCALIDADES_LOCALES)
         if not es_local:
-            return False, "Ubicación fuera de Hellín o Albacete"
-
-        # Comprobación de turno
-        es_turno_manana = any(m in t_completo for m in ["turno de mañana", "solo mañanas", "horario de mañana", "jornada partida", "08:00 a 14:00", "09:00 a 14:00", "partida presencial"])
-        es_turno_tarde = any(t in t_completo for t in ["turno de tarde", "tardes", "horario de tarde", "vespertino", "15:00 a", "16:00 a", "14:00 a 22:00", "15:00 a 23:00", "media jornada tarde"])
-
-        if es_turno_manana and not es_turno_tarde:
-            return False, "Horario presencial en turno de mañana o jornada partida (incompatible con tardes)"
-
-        if es_turno_tarde:
-            return True, "Presencial/Híbrido Albacete/Hellín en turno de tarde"
-
-        # Si es local en Albacete/Hellín pero no especifica turno, es candidato potencial a verificar
-        return True, "Presencial/Híbrido en Albacete/Hellín (turno exacto a verificar)"
+            return False, "Ubicación presencial fuera de Hellín o Albacete"
+        return True, "Presencial/Híbrido en Albacete/Hellín"
 
     def _es_idioma_espanol(self, texto: str) -> bool:
         """
@@ -566,21 +689,31 @@ class ProfileMatcher:
                 "requisitos_verificar": []
             }
 
-        # 2. FILTRO ESTRICTO DE MODALIDAD / UBICACIÓN Y HORARIO
+        # 2. FILTRO ESTRICTO DE MODALIDAD / UBICACIÓN GEOGRÁFICA
         es_remoto = self._es_remoto_espana(texto_analisis, ubicacion, modalidad)
-        es_local_tarde, motivo_local = self._es_local_tarde(texto_analisis, ubicacion, horario)
+        es_local, motivo_local = self._es_local_tarde(texto_analisis, ubicacion, horario)
 
-
-        if not es_remoto and not es_local_tarde:
-            # Descartada directamente por geografía u horario
+        if not es_remoto and not es_local:
             return {
                 "clasificacion": "C",
-                "motivo": f"Descartada por restricciones de ubicación/horario: {motivo_local}",
+                "motivo": f"Descartada por restricciones de ubicación: {motivo_local}",
                 "requisitos_cumple": [],
                 "requisitos_verificar": []
             }
 
-        # 2. EVALUACIÓN DE COMPETENCIAS TÉCNICAS Y OPERATIVAS
+        # 3. FILTRO ESTRICTO DE HORARIO (TIEMPO PARCIAL, TARDE Y/O FIN DE SEMANA)
+        horario_ok, motivo_horario, verificar_horario = self._evaluar_compatibilidad_horaria(
+            texto_analisis, ubicacion, modalidad, horario
+        )
+        if not horario_ok:
+            return {
+                "clasificacion": "C",
+                "motivo": f"Descartada por restricciones de horario: {motivo_horario}",
+                "requisitos_cumple": [],
+                "requisitos_verificar": []
+            }
+
+        # 4. EVALUACIÓN DE COMPETENCIAS TÉCNICAS Y OPERATIVAS
         cumple = []
         puntos_fuertes = set()
 
@@ -606,16 +739,16 @@ class ProfileMatcher:
                     puntos_fuertes.add("Ciberseguridad")
                     cumple.append(f"Ciberseguridad y protección de sistemas: {', '.join(coincidencias[:4])}")
 
-        # Requisitos a verificar (certificaciones civiles o inglés)
+        # Requisitos a verificar (certificaciones civiles, inglés o confirmación de horario)
         verificar = []
         for kw, desc in self.verificar_keywords:
             if re.search(r'\b' + re.escape(kw) + r'\b', texto_analisis):
                 verificar.append(desc)
 
-        if not es_remoto and "turno exacto a verificar" in motivo_local:
-            verificar.append("Confirmar con la empresa disponibilidad de turno exclusivo de tarde")
+        if verificar_horario:
+            verificar.append("Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana")
 
-        # 3. DETERMINACIÓN DE CLASE (A, B, C)
+        # 5. DETERMINACIÓN DE CLASE (A, B, C)
         # Si no encaja con ninguna competencia técnica/operativa de Pedro -> Clase C
         if not puntos_fuertes:
             return {
@@ -627,9 +760,10 @@ class ProfileMatcher:
 
         # Motivo explicativo de valor
         mod_desc = "Teletrabajo 100% compatible" if es_remoto else "Posición local en Hellín/Albacete"
-        motivo = f"{mod_desc}. Oportunidad sólida en {' + '.join(puntos_fuertes)} donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata."
+        det_horario = f" Horario: {motivo_horario}." if motivo_horario else ""
+        motivo = f"{mod_desc}.{det_horario} Oportunidad sólida en {' + '.join(puntos_fuertes)} donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata."
 
-        # Clase B si hay certificaciones civiles a validar o verificar turno local
+        # Clase B si hay certificaciones civiles a validar o verificar horario/turno
         if len(verificar) > 0 or ("Aviónica" in puntos_fuertes and "easa" in texto_analisis):
             clasificacion = "B"
         else:
@@ -734,11 +868,13 @@ class TecnoempleoConnector:
 
 
 class InfoJobsConnector:
-    """Conector para InfoJobs (Albacete, Teletrabajo y RSS de respaldo)."""
+    """Conector para InfoJobs (Albacete, Teletrabajo, Tiempo Parcial y Fines de Semana)."""
     URLS = [
         ("InfoJobs Albacete Sistemas", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword=sistemas&provinceIds=3"),
-        ("InfoJobs Albacete General", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?provinceIds=3"),
+        ("InfoJobs Albacete Parcial/Tardes", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword=parcial&provinceIds=3"),
+        ("InfoJobs Teletrabajo Parcial", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword=parcial&teleworkingIds=2"),
         ("InfoJobs Teletrabajo Sistemas", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword=sistemas&teleworkingIds=2"),
+        ("InfoJobs Fines de Semana", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword=fin+de+semana&teleworkingIds=2"),
     ]
     RSS_URL = "https://www.infojobs.net/trabajos.rss"
 
@@ -836,9 +972,9 @@ class LinkedInConnector:
     URLS = [
         ("LinkedIn Albacete Sistemas", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=sistemas&location=Albacete%2C%20Castile-La%20Mancha%2C%20Spain"),
         ("LinkedIn Albacete Soporte", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=soporte&location=Albacete"),
-        ("LinkedIn Albacete Mantenimiento", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=mantenimiento%20electronico&location=Albacete"),
+        ("LinkedIn Teletrabajo Media Jornada", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=tiempo%20parcial&location=Spain&f_WT=2"),
+        ("LinkedIn Teletrabajo Fines de Semana", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=fin%20de%20semana&location=Spain&f_WT=2"),
         ("LinkedIn Teletrabajo Sistemas", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=administrador%20sistemas&location=Spain&f_WT=2"),
-        ("LinkedIn Teletrabajo Sysadmin", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=sysadmin&location=Spain&f_WT=2"),
         ("LinkedIn España Aviónica", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=avionica&location=Spain")
     ]
 
@@ -901,9 +1037,10 @@ class LinkedInConnector:
 class IndeedConnector:
     """Conector para Indeed España mediante emulación TLS de navegador (curl_cffi)."""
     URLS = [
+        ("Indeed Albacete Parcial", "https://es.indeed.com/jobs?q=tiempo+parcial&l=Albacete"),
         ("Indeed Albacete Sistemas", "https://es.indeed.com/jobs?q=sistemas&l=Albacete"),
-        ("Indeed Albacete Soporte", "https://es.indeed.com/jobs?q=soporte+or+redes&l=Albacete"),
-        ("Indeed Remoto Sistemas", "https://es.indeed.com/jobs?q=administrador+sistemas&l=remoto"),
+        ("Indeed Remoto Parcial", "https://es.indeed.com/jobs?q=tiempo+parcial&l=remoto"),
+        ("Indeed Remoto Fin de Semana", "https://es.indeed.com/jobs?q=fin+de+semana&l=remoto"),
         ("Indeed España Aviónica", "https://es.indeed.com/jobs?q=avionica+or+electronica&l=España")
     ]
 
@@ -1181,10 +1318,14 @@ class JobAgent:
         logger.info("=== INICIANDO AGENTE DE BÚSQUEDA DE EMPLEO ===")
         ahora_str = datetime.now(timezone.utc).strftime("%d/%m/%Y %H:%M UTC")
 
-        # 0. Asegurar coherencia histórica de la base de datos con los filtros actuales
+        # 0. Limpieza periódica semanal de la base de datos
+        if self.db.purgar_semanal_si_procede(dias=7):
+            logger.info("Purga semanal ejecutada: base de datos renovada para nueva búsqueda limpia.")
+
+        # 1. Asegurar coherencia histórica de la base de datos con los filtros actuales
         self.db.reclasificar_bd(self.matcher)
 
-        # 1. Ingesta de todas las fuentes
+        # 2. Ingesta de todas las fuentes
         todas_ofertas = []
         for conn in self.connectors:
             try:

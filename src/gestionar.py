@@ -161,6 +161,33 @@ def mostrar_info(hash_prefix: str):
         print(f"   {of.get('motivo', 'N/A')}\n")
 
 
+def purgar_base_datos():
+    from datetime import datetime, timezone
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM ofertas")
+        total = cursor.fetchone()[0]
+        cursor.execute("DELETE FROM ofertas")
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS metadata (
+                clave TEXT PRIMARY KEY,
+                valor TEXT NOT NULL
+            )
+        """)
+        cursor.execute("INSERT OR REPLACE INTO metadata (clave, valor) VALUES ('ultima_purga', ?)",
+                       (datetime.now(timezone.utc).isoformat(),))
+        conn.commit()
+        cursor.execute("VACUUM")
+        conn.commit()
+
+    json_path = os.path.join(os.path.dirname(DB_PATH), "ofertas.json")
+    with open(json_path, "w", encoding="utf-8") as f:
+        f.write("[]\n")
+
+    print(f"🧹 Base de datos purgada con éxito. Se eliminaron {total} ofertas registradas.")
+    print(f"📄 Archivo '{json_path}' restablecido a lista vacía.")
+
+
 def ayuda():
     print("""
 Uso de la herramienta de gestión de ofertas:
@@ -178,6 +205,9 @@ Uso de la herramienta de gestión de ofertas:
   3. Ver información detallada de una oferta:
      python src/gestionar.py --info <hash>
      Ejemplo: python src/gestionar.py --info a7c612
+
+  4. Purgar base de datos y restablecer ofertas:
+     python src/gestionar.py --purgar
 """)
 
 
@@ -196,6 +226,8 @@ def main():
             print("❌ Debes indicar el hash de la oferta: python src/gestionar.py --info <hash>")
             sys.exit(1)
         mostrar_info(sys.argv[2])
+    elif arg1 == "--purgar":
+        purgar_base_datos()
     else:
         # Modo: <hash> <ESTADO>
         if len(sys.argv) < 3:
