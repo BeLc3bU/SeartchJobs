@@ -203,6 +203,15 @@ class ProfileMatcher:
                 "procedimientos", "normativa", "documentacion tecnica", "documentación técnica",
                 "iso 9001", "gestion de material", "gestión de material"
             ],
+            "administracion_contabilidad": [
+                "administrativo", "administrativa", "administracion", "administración",
+                "contable", "contabilidad", "facturacion", "facturación", "asientos",
+                "conciliacion", "conciliación", "proveedores", "clientes", "albaranes",
+                "pedidos", "gestion documental", "gestión documental", "archivo",
+                "registro", "erp", "sap", "excel", "office", "backoffice", "back office",
+                "auxiliar administrativo", "auxiliar administrativa", "gestion de cobros",
+                "tramitacion", "tramitación", "secretariado", "oficina tecnica"
+            ],
             "ciberseguridad": [
                 "ciberseguridad", "seguridad informatica", "seguridad de la informacion",
                 "incibe", "soc", "siem", "criptografia", "hardening", "iso 27001", "ens"
@@ -310,6 +319,9 @@ class ProfileMatcher:
                 elif area == "logistica_calidad":
                     puntos_fuertes.add("Logística / Calidad / Procedimientos")
                     cumple.append(f"Gestión de material, almacén y control de calidad: {', '.join(coincidencias[:4])}")
+                elif area == "administracion_contabilidad":
+                    puntos_fuertes.add("Administración / Gestión / Contabilidad")
+                    cumple.append(f"Gestión administrativa, contable y documental: {', '.join(coincidencias[:4])}")
                 elif area == "ciberseguridad":
                     puntos_fuertes.add("Ciberseguridad")
                     cumple.append(f"Ciberseguridad y protección de sistemas: {', '.join(coincidencias[:4])}")

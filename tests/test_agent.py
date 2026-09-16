@@ -80,6 +80,18 @@ class TestProfileMatcher(unittest.TestCase):
         self.assertEqual(res["clasificacion"], "B")
         self.assertTrue(any("CCNA" in v or "Azure" in v for v in res["requisitos_verificar"]))
 
+    def test_remoto_administrativo_contable_clase_a(self):
+        oferta = {
+            "puesto": "Auxiliar Administrativo y Gestión Documental",
+            "descripcion": "Gestión de facturación, albaranes, pedidos y conciliación bancaria con Excel y ERP. Puesto 100% teletrabajo.",
+            "ubicacion": "España",
+            "modalidad": "REMOTO",
+            "horario": "FLEXIBLE"
+        }
+        res = self.matcher.evaluar_oferta(oferta)
+        self.assertEqual(res["clasificacion"], "A")
+        self.assertTrue(any("Administración" in c or "contable" in c for c in res["requisitos_cumple"]))
+
 
 class TestDatabaseAndDeduplication(unittest.TestCase):
     def setUp(self):
