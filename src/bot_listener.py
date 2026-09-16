@@ -52,15 +52,19 @@ class BotListener:
         if texto in ("/start", "/ayuda", "ayuda", "hola"):
             msg = (
                 "👋 <b>¡Hola Pedro! Asistente activo en tiempo real.</b>\n\n"
-                "Comandos rápidos disponibles:\n"
-                "• /resumen — Estadísticas de ofertas en base de datos\n"
-                "• /interesantes — Ver tus vacantes guardadas\n"
-                "• /buscar — 🚀 Lanzar búsqueda de nuevas ofertas ahora mismo\n"
+                "Comandos disponibles:\n"
+                "• /ofertas — 📋 Ver las mejores ofertas activas con sus enlaces directos\n"
+                "• /resumen — 📊 Estadísticas de ofertas en base de datos\n"
+                "• /interesantes — ⭐ Ver tus vacantes guardadas\n"
+                "• /buscar — 🚀 Rastrear nuevas ofertas ahora en vivo\n"
                 "• /interesante_&lt;hash&gt; — Guardar vacante\n"
                 "• /solicitada_&lt;hash&gt; — Marcar como enviada\n"
                 "• /descartar_&lt;hash&gt; — Descartar vacante"
             )
             self.telegram.enviar_mensaje(msg)
+
+        elif texto.startswith("/ofertas") or texto.startswith("/ultimas"):
+            self.enviar_ultimas_ofertas(limite=5)
 
         elif texto.startswith("/resumen"):
             res = self.db.obtener_resumen()
@@ -71,14 +75,15 @@ class BotListener:
             msg = (
                 f"📊 <b>ESTADO DE TU BASE DE DATOS</b>\n\n"
                 f"<b>Por Estado:</b>\n{lineas_est}\n\n"
-                f"<b>Por Clasificación:</b>\n{lineas_cl}"
+                f"<b>Por Clasificación:</b>\n{lineas_cl}\n\n"
+                f"👉 <i>Escribe /ofertas para ver las mejores vacantes activas.</i>"
             )
             self.telegram.enviar_mensaje(msg)
 
         elif texto.startswith("/interesantes"):
             lista = self.db.obtener_interesantes(limite=8)
             if not lista:
-                self.telegram.enviar_mensaje("⭐ No tienes ninguna oferta marcada como <b>INTERESANTE</b> actualmente.")
+                self.telegram.enviar_mensaje("⭐ No tienes ninguna oferta marcada como <b>INTERESANTE</b> actualmente.\nUsa /ofertas para explorar vacantes y guardarlas.")
             else:
                 bloques = ["⭐ <b>TUS OFERTAS GUARDADAS COMO INTERESANTES:</b>\n"]
                 for of in lista:
@@ -86,16 +91,17 @@ class BotListener:
                     bloques.append(
                         f"💼 <b>{of['puesto']}</b> ({of['empresa']})\n"
                         f"📍 {of['ubicacion']} | 💰 {of['salario']}\n"
-                        f"🔗 <a href='{of['url']}'>Ver Oferta</a>\n"
+                        f"🔗 <a href='{of['url']}'>Ver Oferta en {of.get('fuente', 'Portal')}</a>\n"
                         f"⚡ <code>{h}</code>: /solicitada_{h} | /descartar_{h}"
                     )
                 self.telegram.enviar_mensaje("\n\n".join(bloques))
 
         elif texto.startswith("/buscar"):
-            self.telegram.enviar_mensaje("🚀 <b>Iniciando búsqueda de empleo en tiempo real...</b>\nConsultando Remotive, Tecnoempleo y WeWorkRemotely. Espera un momento...")
+            self.telegram.enviar_mensaje("🚀 <b>Iniciando búsqueda de empleo en tiempo real...</b>\nConsultando Remotive, Tecnoempleo y WeWorkRemotely. Espera unos segundos...")
             try:
                 self.agent.ejecutar()
-                self.telegram.enviar_mensaje("✅ <b>Búsqueda completada.</b> Si se han encontrado nuevas ofertas A o B, las habrás recibido arriba.")
+                self.telegram.enviar_mensaje("📋 <b>Aquí tienes las ofertas más destacadas con enlace directo:</b>")
+                self.enviar_ultimas_ofertas(limite=4)
             except Exception as e:
                 self.telegram.enviar_mensaje(f"❌ Error durante la búsqueda: {e}")
 
@@ -122,6 +128,18 @@ class BotListener:
                 self.telegram.enviar_mensaje(f"🗑️ Oferta <b>{of['puesto']}</b> ({of['empresa']}) <b>DESCARTADA</b>.")
             else:
                 self.telegram.enviar_mensaje(f"⚠️ No se encontró la oferta con hash '{h}'.")
+
+    def enviar_ultimas_ofertas(self, limite: int = 4):
+        """Recupera y envía las mejores ofertas activas con enlaces directos y botones de acción."""
+        ofertas = self.db.obtener_ultimas_activas(limite=limite)
+        if not ofertas:
+            self.telegram.enviar_mensaje("No hay ofertas activas disponibles en la base de datos.")
+            return
+
+        self.telegram.enviar_mensaje(f"🎯 <b>ÚLTIMAS {len(ofertas)} OFERTAS ACTIVAS CON ENCAJE DIRECTO:</b>\n────────────────────────")
+        for of in ofertas:
+            bloque = self.telegram.formatear_oferta_html(of)
+            self.telegram.enviar_mensaje(bloque)
 
     def iniciar_escucha(self):
         logger.info("Iniciando servicio de escucha continua en Telegram para chat_id %s...", self.chat_id)

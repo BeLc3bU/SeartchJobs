@@ -179,6 +179,27 @@ class DatabaseManager:
                 d = dict(f)
                 d["requisitos_cumple"] = json.loads(d["requisitos_cumple"] or "[]")
                 d["requisitos_verificar"] = json.loads(d["requisitos_verificar"] or "[]")
+    def obtener_ultimas_activas(self, limite: int = 5, clasificacion: Optional[str] = None) -> List[Dict[str, Any]]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            if clasificacion:
+                cursor.execute("""
+                    SELECT * FROM ofertas 
+                    WHERE clasificacion = ? AND estado != 'DESCARTADA'
+                    ORDER BY fecha_procesada DESC LIMIT ?
+                """, (clasificacion, limite))
+            else:
+                cursor.execute("""
+                    SELECT * FROM ofertas 
+                    WHERE clasificacion IN ('A', 'B') AND estado != 'DESCARTADA'
+                    ORDER BY clasificacion ASC, fecha_procesada DESC LIMIT ?
+                """, (limite,))
+            filas = cursor.fetchall()
+            res = []
+            for f in filas:
+                d = dict(f)
+                d["requisitos_cumple"] = json.loads(d["requisitos_cumple"] or "[]")
+                d["requisitos_verificar"] = json.loads(d["requisitos_verificar"] or "[]")
                 res.append(d)
             return res
 
