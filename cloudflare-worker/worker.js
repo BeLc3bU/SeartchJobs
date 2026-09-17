@@ -137,6 +137,45 @@ async function fetchOfertas() {
 }
 
 /**
+ * Formatea el salario si viene como objeto, JSON o cadena cruda
+ */
+function formatSalary(sal) {
+  if (!sal || sal === "No especificado") return "No especificado";
+  if (typeof sal === "string" && sal.trim().startsWith("{") && sal.trim().endsWith("}")) {
+    try {
+      const jsonStr = sal.replace(/'/g, '"')
+        .replace(/True/g, 'true')
+        .replace(/False/g, 'false')
+        .replace(/None/g, 'null');
+      sal = JSON.parse(jsonStr);
+    } catch (e) {}
+  }
+  if (typeof sal === "object" && sal !== null) {
+    const from = sal.from;
+    const to = sal.to;
+    const curr = sal.currencyCode === "EUR" ? "€" : (sal.currencyCode || "€");
+    const pMap = { YEARLY: "año", MONTHLY: "mes", HOURLY: "hora", WEEKLY: "semana", DAILY: "día" };
+    const period = pMap[sal.period] || (sal.period ? sal.period.toLowerCase() : "");
+    const extra = sal.extraOptions;
+    let text = "";
+    if (from !== undefined && to !== undefined) {
+      text = `${Number(from).toLocaleString('es-ES')} - ${Number(to).toLocaleString('es-ES')} ${curr}`;
+    } else if (from !== undefined) {
+      text = `${Number(from).toLocaleString('es-ES')} ${curr}`;
+    } else if (to !== undefined) {
+      text = `Hasta ${Number(to).toLocaleString('es-ES')} ${curr}`;
+    }
+    if (text) {
+      if (period) text += ` / ${period}`;
+      if (extra) text += ` (${extra})`;
+      return text;
+    }
+    if (extra) return String(extra);
+  }
+  return String(sal);
+}
+
+/**
  * Construye el contenido formateado de una oferta individual
  */
 function formatOfferCard(of, index, total) {
@@ -146,13 +185,16 @@ function formatOfferCard(of, index, total) {
   const h = of.id ? of.id.substring(0, 8) : "";
   const fuente = of.fuente || "Portal";
   const motivo = of.motivo ? `\n<b>💡 Por qué merece atención:</b>\n<i>${of.motivo}</i>\n` : "";
+  const horario = of.horario || "Tiempo parcial / tarde / fin de semana";
+  const salario = formatSalary(of.salario);
 
   return (
     `🎯 <b>OFERTA (${index + 1} de ${total})</b> | ${badge}\n` +
     `💼 <b>${of.puesto}</b>\n` +
     `🏢 <b>Empresa:</b> ${of.empresa}\n` +
     `📍 <b>Ubicación:</b> ${of.ubicacion} (${of.modalidad || 'No especificada'})\n` +
-    `💰 <b>Salario:</b> ${of.salario || 'No especificado'}\n` +
+    `⏰ <b>Jornada/Turno:</b> ${horario}\n` +
+    `💰 <b>Salario:</b> ${salario}\n` +
     cumpleHtml +
     motivo +
     `🔗 <b>Fuente:</b> ${fuente}\n` +
@@ -224,7 +266,43 @@ async function handleCallbackQuery(queryId, chatId, messageId, data, token, env)
 
   if (data.startsWith("fav_")) {
     const h = data.replace("fav_", "");
-    await answerCallbackQuery(token, queryId, `⭐ ¡Oferta (${h}) marcada como interesante!`, true);
+    const ofertas = await fetchOfertas();
+    const of = ofertas.find(o => (o.id || "").startsWith(h)) || { 
+      id: h, 
+      puesto: "Oferta seleccionada", 
+      empresa: "Empresa", 
+      url: "#", 
+      fuente: "Portal", 
+      horario: "Tiempo parcial / tarde / fin de semana", 
+      salario: "No especificado" 
+    };
+
+    // 1. Guardar en memoria global del worker
+    globalThis.FAVORITES = globalThis.FAVORITES || new Map();
+    globalThis.FAVORITES.set(h, of);
+
+    // 2. Guardar en KV si está configurado
+    const kv = env.FAVORITES || env.KV_STORE;
+    if (kv && typeof kv.put === "function") {
+      try { await kv.put(`fav_${h}`, JSON.stringify(of)); } catch (e) { console.error("Error guardando en KV:", e); }
+    }
+
+    // 3. Confirmación emergente de Telegram
+    await answerCallbackQuery(token, queryId, "⭐ ¡Guardada en Interesantes!", false);
+
+    // 4. Enviar tarjeta de marcador directo al chat
+    const confirmMsg = 
+      `⭐ <b>¡VACANTE GUARDADA EN INTERESANTES!</b>\n\n` +
+      `💼 <b>${of.puesto}</b>\n` +
+      `🏢 <b>Empresa:</b> ${of.empresa}\n` +
+      `📍 <b>Ubicación:</b> ${of.ubicacion || 'España'} (${of.modalidad || 'Remoto'})\n` +
+      `⏰ <b>Jornada/Turno:</b> ${of.horario || 'Tiempo parcial / tarde / fin de semana'}\n` +
+      `💰 <b>Salario:</b> ${formatSalary(of.salario)}\n` +
+      `🔗 <a href="${of.url}">Ver Oferta Original en ${of.fuente || 'Portal'}</a>\n` +
+      `🆔 <code>${h}</code>\n\n` +
+      `⚡ <i>Acciones:</i> /solicitada_${h} | /descartar_${h}`;
+
+    await sendTelegramMessage(token, chatId, confirmMsg);
     return;
   }
 
@@ -298,19 +376,84 @@ async function handleCommand(text, chatId, token, env) {
   }
 
   if (t.startsWith("/interesantes")) {
-    const favs = ofertas.filter(o => o.estado === "INTERESANTE");
+    const favsMap = new Map();
+
+    // A) Desde ofertas.json (si estado === INTERESANTE)
+    for (const of of ofertas) {
+      if (of.estado === "INTERESANTE") {
+        const h = of.id ? of.id.substring(0, 8) : "";
+        favsMap.set(h, of);
+      }
+    }
+
+    // B) Desde memoria global del worker
+    if (globalThis.FAVORITES) {
+      for (const [h, of] of globalThis.FAVORITES.entries()) {
+        favsMap.set(h, of);
+      }
+    }
+
+    // C) Desde Cloudflare KV si está configurado
+    const kv = env.FAVORITES || env.KV_STORE;
+    if (kv && typeof kv.list === "function") {
+      try {
+        const list = await kv.list({ prefix: "fav_" });
+        for (const key of list.keys) {
+          const val = await kv.get(key.name);
+          if (val) {
+            const of = JSON.parse(val);
+            const h = of.id ? of.id.substring(0, 8) : key.name.replace("fav_", "");
+            favsMap.set(h, of);
+          }
+        }
+      } catch (e) {
+        console.error("Error leyendo KV:", e);
+      }
+    }
+
+    const favs = Array.from(favsMap.values());
     if (favs.length === 0) {
-      await sendTelegramMessage(token, chatId, "⭐ No tienes ninguna vacante guardada como <b>INTERESANTE</b>.\nToca /ofertas para explorar y guardar.");
+      await sendTelegramMessage(
+        token, 
+        chatId, 
+        "⭐ No tienes ninguna vacante guardada como <b>INTERESANTE</b> actualmente.\n\n" +
+        "👉 Navega con <b>/ofertas</b> y pulsa el botón <b>⭐ Interesante</b> en cualquiera de ellas para guardarla en tus favoritos."
+      );
       return;
     }
 
-    let msg = `⭐ <b>TUS VACANTES FAVORITAS (${favs.length}):</b>\n\n`;
-    for (const of of favs.slice(0, 5)) {
+    let msg = `⭐ <b>TUS VACANTES FAVORITAS GUARDADAS (${favs.length}):</b>\n\n`;
+    for (const of of favs.slice(0, 8)) {
       const h = of.id ? of.id.substring(0, 8) : "";
+      const sal = formatSalary(of.salario);
+      const hor = of.horario || "Tiempo parcial / tardes";
       msg += `💼 <b>${of.puesto}</b> (${of.empresa})\n` +
-             `🔗 <a href="${of.url}">Ver Oferta</a> | <code>${h}</code>\n\n`;
+             `📍 ${of.ubicacion || 'España'} | ⏰ ${hor} | 💰 ${sal}\n` +
+             `🔗 <a href="${of.url}">Ver Oferta Original</a>\n` +
+             `⚡ /solicitada_${h} | /descartar_${h}\n\n`;
     }
     await sendTelegramMessage(token, chatId, msg);
+    return;
+  }
+
+  if (t.startsWith("/solicitada_") || t.startsWith("/descartar_")) {
+    const accion = t.startsWith("/solicitada_") ? "SOLICITADA" : "DESCARTADA";
+    const h = t.replace("/solicitada_", "").replace("/descartar_", "").trim();
+    
+    if (globalThis.FAVORITES && globalThis.FAVORITES.has(h) && accion === "DESCARTADA") {
+      globalThis.FAVORITES.delete(h);
+    }
+    const kv = env.FAVORITES || env.KV_STORE;
+    if (kv && typeof kv.delete === "function" && accion === "DESCARTADA") {
+      try { await kv.delete(`fav_${h}`); } catch(e){}
+    }
+
+    const icono = accion === "SOLICITADA" ? "📝" : "🗑️";
+    await sendTelegramMessage(
+      token, 
+      chatId, 
+      `${icono} Vacante <code>${h}</code> marcada como <b>${accion}</b>.`
+    );
     return;
   }
 

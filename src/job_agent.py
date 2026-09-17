@@ -11,6 +11,7 @@ import os
 import sys
 import re
 import json
+import ast
 import sqlite3
 import hashlib
 import logging
@@ -537,6 +538,10 @@ class ProfileMatcher:
         Detecta y descarta tajantemente cualquier puesto a tiempo completo / jornada completa (40h/semana).
         """
         t_completo = f"{texto} {horario}".lower()
+        h_lower = (horario or "").lower()
+
+        if any(c in h_lower for c in ["completa", "completo", "full-time", "full time", "40h", "40 horas"]):
+            return True, "Horario explícito de tiempo completo / jornada completa (40h)"
 
         # Descarte directo si el campo o texto indica jornada completa / 40h
         patrones_completo = [
@@ -559,56 +564,103 @@ class ProfileMatcher:
 
     def _evaluar_compatibilidad_horaria(self, texto: str, ubicacion: str, modalidad: str, horario: str) -> Tuple[bool, str, bool]:
         """
-        Determina si la oferta es compatible con tiempo parcial por la tarde y/o fin de semana.
-        Retorna: (es_compatible, motivo, requiere_verificar_horario)
+        Determina si la oferta es compatible EXCLUSIVAMENTE con:
+        - Tiempo parcial / media jornada (que NO sea de mañanas)
+        - Turno de tarde / vespertino
+        - Fines de semana
+
+        Descarta tajantemente:
+        - Jornada completa / tiempo completo / 40h
+        - Turno de mañana / matinal / solo mañanas
+        - Horarios no especificados que no demuestren ser parcial, tarde o fin de semana.
         """
         t_completo = f"{texto} {ubicacion} {modalidad} {horario}".lower()
+        h_lower = (horario or "").lower()
 
         # 1. Comprobación de tiempo completo / 40h
         es_tc, motivo_tc = self._es_tiempo_completo(texto, horario)
         if es_tc:
             return False, motivo_tc, False
 
-        # 2. Comprobación de turno de mañana incompatible
-        es_turno_manana = any(m in t_completo for m in [
-            "turno de mañana", "solo mañanas", "horario de mañana",
-            "08:00 a 14:00", "09:00 a 14:00", "08:00 a 15:00", "09:00 a 15:00"
-        ])
-        
-        # 3. Menciones explícitas favorables:
-        # A) Tiempo parcial / media jornada / horas
-        es_tiempo_parcial = any(tp in t_completo for tp in [
-            "tiempo parcial", "media jornada", "jornada parcial", "part-time", "part time",
-            "por horas", "horas semanales", "20h", "20 horas", "15h", "15 horas", "10h", "10 horas",
-            "25h", "25 horas", "30h", "30 horas", "media jornada tarde", "parcial tardes"
-        ])
+        # 2. Comprobación y descarte tajante de turno de mañana / matinal
+        patrones_manana = [
+            r'\bturno\s+de\s+mañana\b',
+            r'\bturno\s+mañana\b',
+            r'\bhorario\s+de\s+mañana\b',
+            r'\bsolo\s+mañanas?\b',
+            r'\bpor\s+la\s+mañana\b',
+            r'\ben\s+las?\s+mañanas?\b',
+            r'\bde\s+mañanas?\b',
+            r'\bmatinal\b',
+            r'\bparcial\s*-\s*mañana\b',
+            r'\bintensiva\s*-\s*mañana\b',
+            r'\bjornada\s+de\s+mañana\b',
+            r'\b0[789]:00\s*(?:a|-)\s*1[345]:00\b'
+        ]
+        es_manana = any(re.search(pat, t_completo) for pat in patrones_manana) or any(m in h_lower for m in ["mañana", "matinal"])
 
-        # B) Turno de tarde / vespertino
-        es_turno_tarde = any(t in t_completo for t in [
-            "turno de tarde", "tardes", "horario de tarde", "vespertino", "de tarde",
-            "15:00 a", "16:00 a", "17:00 a", "14:00 a 22:00", "15:00 a 23:00"
-        ])
+        # 3. Comprobación de turno de tarde / vespertino
+        patrones_tarde = [
+            r'\bturno\s+de\s+tarde\b',
+            r'\bturno\s+tarde\b',
+            r'\bhorario\s+de\s+tarde\b',
+            r'\bpor\s+la\s+tarde\b',
+            r'\ben\s+las?\s+tardes?\b',
+            r'\bde\s+tardes?\b',
+            r'\bvespertino\b',
+            r'\bparcial\s*-\s*tarde\b',
+            r'\bintensiva\s*-\s*tarde\b',
+            r'\bjornada\s+de\s+tarde\b',
+            r'\b1[4567]:00\s*(?:a|-)\s*2[0123]:00\b',
+            r'\b1[4567]:00\s*a\b'
+        ]
+        es_turno_tarde = any(re.search(pat, t_completo) for pat in patrones_tarde) or any(t in h_lower for t in ["tarde", "vespertino"])
 
-        # C) Fin de semana
-        es_fin_de_semana = any(f in t_completo for f in [
-            "fin de semana", "fines de semana", "sábados", "sabados", "domingos",
-            "sabado y domingo", "sábado y domingo", "guardias de fin de semana", "weekend"
-        ])
+        # 4. Comprobación de fin de semana
+        patrones_fds = [
+            r'\bfin\s+de\s+semana\b',
+            r'\bfines\s+de\s+semana\b',
+            r'\bs[aá]bados?\s+y\s+domingos?\b',
+            r'\bs[aá]bados?\b',
+            r'\bdomingos?\b',
+            r'\bguardias?\s+de\s+fin\s+de\s+semana\b',
+            r'\bweekend\b'
+        ]
+        es_fin_de_semana = any(re.search(pat, t_completo) for pat in patrones_fds) or "fin de semana" in h_lower
 
-        if es_turno_manana and not (es_turno_tarde or es_fin_de_semana):
-            return False, "Horario exclusivo en turno de mañana (incompatible con tardes)", False
+        # 5. Comprobación de tiempo parcial / media jornada
+        patrones_parcial = [
+            r'\btiempo\s+parcial\b',
+            r'\bmedia\s+jornada\b',
+            r'\bjornada\s+parcial\b',
+            r'\bpart[- ]?time\b',
+            r'\bpor\s+horas\b',
+            r'\bhoras\s+semanales\b',
+            r'\b(?:10|12|15|18|20|24|25|30)\s*h(?:oras)?(?:/(?:sem|semana))?\b',
+            r'\bparcial\s*-\s*indiferente\b'
+        ]
+        es_tiempo_parcial = any(re.search(pat, t_completo) for pat in patrones_parcial) or any(p in h_lower for p in ["parcial", "media jornada", "part-time", "part time", "horas"])
 
-        # Si explícitamente cumple tarde, parcial o fin de semana:
-        if es_tiempo_parcial or es_turno_tarde or es_fin_de_semana:
-            detalles = []
-            if es_tiempo_parcial: detalles.append("Tiempo parcial / media jornada")
-            if es_turno_tarde: detalles.append("Turno de tarde")
-            if es_fin_de_semana: detalles.append("Fin de semana")
-            return True, " + ".join(detalles), False
+        # Si es turno de mañana exclusivo:
+        if es_manana and not (es_turno_tarde or es_fin_de_semana):
+            return False, "Turno de mañana incompatible (se exige exclusivamente tardes o fines de semana)", False
 
-        # Si el horario no está especificado:
-        # En remoto o local, si no indica tiempo completo ni mañana, se admite como potencial (Clase B a verificar)
-        return True, "Horario no especificado (a verificar si permite parcial tardes o fin de semana)", True
+        # Si NO especifica turno de tarde, fin de semana ni tiempo parcial:
+        # DESCARTAR ROTUNDAMENTE (no admitir por omisión para evitar jornada completa)
+        if not (es_turno_tarde or es_fin_de_semana or es_tiempo_parcial):
+            return False, "No especifica turno de tarde, fin de semana ni tiempo parcial (descartada para evitar jornada completa ordinaria)", False
+
+        detalles = []
+        if es_turno_tarde:
+            detalles.append("Turno de tarde")
+        if es_fin_de_semana:
+            detalles.append("Fin de semana")
+        if es_tiempo_parcial:
+            detalles.append("Tiempo parcial / media jornada")
+
+        motivo = " + ".join(detalles)
+        requiere_verificar = es_tiempo_parcial and not (es_turno_tarde or es_fin_de_semana)
+        return True, motivo, requiere_verificar
 
     def _es_local_tarde(self, texto: str, ubicacion: str, horario: str) -> Tuple[bool, str]:
         """
@@ -794,6 +846,64 @@ def limpiar_html(html_text: str) -> str:
     texto = soup.get_text(separator=" ")
     return re.sub(r'\s+', ' ', texto).strip()
 
+def formatear_salario(salario_raw: Any) -> str:
+    """Formatea limpiamente el salario en caso de ser dict, JSON o texto crudo."""
+    if not salario_raw or salario_raw == "No especificado":
+        return "No especificado"
+    
+    if isinstance(salario_raw, str):
+        s_strip = salario_raw.strip()
+        if s_strip.startswith("{") and s_strip.endswith("}"):
+            try:
+                val = ast.literal_eval(s_strip)
+                if isinstance(val, dict):
+                    salario_raw = val
+            except Exception:
+                try:
+                    val = json.loads(s_strip)
+                    if isinstance(val, dict):
+                        salario_raw = val
+                except Exception:
+                    pass
+
+    if isinstance(salario_raw, dict):
+        val_from = salario_raw.get("from")
+        val_to = salario_raw.get("to")
+        currency = salario_raw.get("currencyCode", "EUR")
+        curr_sym = "€" if currency == "EUR" else currency
+        period = (salario_raw.get("period") or "").upper()
+        
+        p_map = {
+            "YEARLY": "año",
+            "MONTHLY": "mes",
+            "HOURLY": "hora",
+            "WEEKLY": "semana",
+            "DAILY": "día"
+        }
+        p_str = p_map.get(period, period.lower() if period else "")
+        extra = salario_raw.get("extraOptions")
+
+        res = ""
+        if val_from is not None and val_to is not None:
+            res = f"{val_from:,.0f} - {val_to:,.0f} {curr_sym}".replace(",", ".")
+        elif val_from is not None:
+            res = f"{val_from:,.0f} {curr_sym}".replace(",", ".")
+        elif val_to is not None:
+            res = f"Hasta {val_to:,.0f} {curr_sym}".replace(",", ".")
+
+        if res:
+            if p_str:
+                res += f" / {p_str}"
+            if extra:
+                res += f" ({extra})"
+            return res
+        elif extra:
+            return str(extra)
+        else:
+            return "No especificado"
+
+    return str(salario_raw).strip()
+
 
 class TecnoempleoConnector:
     """Conector para los feeds RSS y búsquedas de Tecnoempleo (Albacete, Teletrabajo y General IT)."""
@@ -870,11 +980,11 @@ class TecnoempleoConnector:
 class InfoJobsConnector:
     """Conector para InfoJobs (Albacete, Teletrabajo, Tiempo Parcial y Fines de Semana)."""
     URLS = [
-        ("InfoJobs Albacete Sistemas", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword=sistemas&provinceIds=3"),
         ("InfoJobs Albacete Parcial/Tardes", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword=parcial&provinceIds=3"),
         ("InfoJobs Teletrabajo Parcial", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword=parcial&teleworkingIds=2"),
-        ("InfoJobs Teletrabajo Sistemas", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword=sistemas&teleworkingIds=2"),
-        ("InfoJobs Fines de Semana", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword=fin+de+semana&teleworkingIds=2"),
+        ("InfoJobs Teletrabajo Tardes", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword=tarde&teleworkingIds=2"),
+        ("InfoJobs Teletrabajo Fines de Semana", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword=fin+de+semana&teleworkingIds=2"),
+        ("InfoJobs Teletrabajo Sistemas Parcial", "https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword=sistemas&workdayIds=2&teleworkingIds=2"),
     ]
     RSS_URL = "https://www.infojobs.net/trabajos.rss"
 
@@ -970,12 +1080,12 @@ class InfoJobsConnector:
 class LinkedInConnector:
     """Conector para LinkedIn Jobs mediante la API pública guest search."""
     URLS = [
-        ("LinkedIn Albacete Sistemas", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=sistemas&location=Albacete%2C%20Castile-La%20Mancha%2C%20Spain"),
-        ("LinkedIn Albacete Soporte", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=soporte&location=Albacete"),
+        ("LinkedIn Albacete Parcial", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=tiempo%20parcial&location=Albacete%2C%20Castile-La%20Mancha%2C%20Spain"),
+        ("LinkedIn Albacete Tardes", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=tarde&location=Albacete%2C%20Castile-La%20Mancha%2C%20Spain"),
         ("LinkedIn Teletrabajo Media Jornada", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=tiempo%20parcial&location=Spain&f_WT=2"),
+        ("LinkedIn Teletrabajo Tardes", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=tarde&location=Spain&f_WT=2"),
         ("LinkedIn Teletrabajo Fines de Semana", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=fin%20de%20semana&location=Spain&f_WT=2"),
-        ("LinkedIn Teletrabajo Sistemas", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=administrador%20sistemas&location=Spain&f_WT=2"),
-        ("LinkedIn España Aviónica", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=avionica&location=Spain")
+        ("LinkedIn España Aviónica Parcial", "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=avionica&location=Spain&f_JT=P")
     ]
 
     def fetch(self) -> List[Dict[str, Any]]:
@@ -1038,10 +1148,10 @@ class IndeedConnector:
     """Conector para Indeed España mediante emulación TLS de navegador (curl_cffi)."""
     URLS = [
         ("Indeed Albacete Parcial", "https://es.indeed.com/jobs?q=tiempo+parcial&l=Albacete"),
-        ("Indeed Albacete Sistemas", "https://es.indeed.com/jobs?q=sistemas&l=Albacete"),
+        ("Indeed Albacete Tardes", "https://es.indeed.com/jobs?q=tarde&l=Albacete"),
         ("Indeed Remoto Parcial", "https://es.indeed.com/jobs?q=tiempo+parcial&l=remoto"),
+        ("Indeed Remoto Tardes", "https://es.indeed.com/jobs?q=tarde&l=remoto"),
         ("Indeed Remoto Fin de Semana", "https://es.indeed.com/jobs?q=fin+de+semana&l=remoto"),
-        ("Indeed España Aviónica", "https://es.indeed.com/jobs?q=avionica+or+electronica&l=España")
     ]
 
     def fetch(self) -> List[Dict[str, Any]]:
@@ -1118,12 +1228,16 @@ class IndeedConnector:
 
 
 class JobTodayConnector:
-    """Conector para Job Today (Albacete, Teletrabajo y puestos operativos)."""
+    """Conector para Job Today (Albacete, Teletrabajo y puestos en tiempo parcial / tardes / fin de semana)."""
     URLS = [
         ("Job Today Albacete", "https://jobtoday.com/es/trabajos-albacete"),
+        ("Job Today Albacete Parcial", "https://jobtoday.com/es/trabajos-albacete?q=media+jornada"),
         ("Job Today Teletrabajo", "https://jobtoday.com/es/trabajos-teletrabajo"),
-        ("Job Today Sistemas", "https://jobtoday.com/es/trabajos?q=sistemas"),
-        ("Job Today Soporte", "https://jobtoday.com/es/trabajos?q=soporte")
+        ("Job Today Teletrabajo Parcial", "https://jobtoday.com/es/trabajos-teletrabajo?q=media+jornada"),
+        ("Job Today Teletrabajo Fines de Semana", "https://jobtoday.com/es/trabajos-teletrabajo?q=fin+de+semana"),
+        ("Job Today Teletrabajo Tardes", "https://jobtoday.com/es/trabajos-teletrabajo?q=tardes"),
+        ("Job Today Media Jornada", "https://jobtoday.com/es/trabajos?q=media+jornada"),
+        ("Job Today Tardes", "https://jobtoday.com/es/trabajos?q=tardes"),
     ]
 
     def fetch(self) -> List[Dict[str, Any]]:
@@ -1177,7 +1291,17 @@ class JobTodayConnector:
                         ciudad = addr_info.get("display", {}).get("city") or direccion or "España"
 
                         modalidad = "REMOTO" if "teletrabajo" in url.lower() or "remoto" in desc.lower() else "PRESENCIAL"
-                        salario = p.get("salary") or "No especificado"
+                        
+                        emp_type = (p.get("employmentType") or "").upper()
+                        if emp_type == "PART_TIME":
+                            horario = "Tiempo parcial"
+                        elif emp_type == "FULL_TIME":
+                            horario = "Jornada completa"
+                        else:
+                            horario = "No especificado"
+
+                        salario_raw = p.get("salary")
+                        salario_limpio = formatear_salario(salario_raw)
 
                         ofertas.append({
                             "id": generar_hash(empresa, role, job_url),
@@ -1185,8 +1309,8 @@ class JobTodayConnector:
                             "empresa": empresa.strip(),
                             "ubicacion": ciudad,
                             "modalidad": modalidad,
-                            "horario": "No especificado",
-                            "salario": str(salario) if salario else "No especificado",
+                            "horario": horario,
+                            "salario": salario_limpio,
                             "url": job_url,
                             "fuente": "Job Today",
                             "descripcion": limpiar_html(desc),
@@ -1261,7 +1385,18 @@ class TelegramDispatcher:
         badge = "🟢 <b>CLASE A (Encaje Directo)</b>" if clase == "A" else "🟡 <b>CLASE B (Encaje Potencial)</b>"
         
         req_cumple = oferta.get("requisitos_cumple", [])
+        if isinstance(req_cumple, str):
+            try:
+                req_cumple = json.loads(req_cumple)
+            except Exception:
+                req_cumple = [req_cumple]
+
         req_verificar = oferta.get("requisitos_verificar", [])
+        if isinstance(req_verificar, str):
+            try:
+                req_verificar = json.loads(req_verificar)
+            except Exception:
+                req_verificar = [req_verificar]
 
         cumple_html = ""
         if req_cumple:
@@ -1278,13 +1413,16 @@ class TelegramDispatcher:
         motivo = oferta.get("motivo", "")
         motivo_html = f"\n<b>💡 Por qué merece atención:</b>\n<i>{motivo}</i>\n" if motivo else ""
         h = oferta.get('id', '')
+        salario = formatear_salario(oferta.get('salario', 'No especificado'))
+        horario = oferta.get('horario', 'No especificado')
 
         bloque = (
             f"💼 <b>{oferta.get('puesto', 'Puesto')}</b>\n"
             f"🏢 <b>Empresa:</b> {oferta.get('empresa', 'No indicada')}\n"
             f"🏷️ <b>Evaluación:</b> {badge}\n"
             f"📍 <b>Ubicación/Modalidad:</b> {oferta.get('ubicacion', '')} ({oferta.get('modalidad', '')})\n"
-            f"💰 <b>Salario:</b> {oferta.get('salario', 'No especificado')}\n"
+            f"⏰ <b>Jornada/Turno:</b> {horario}\n"
+            f"💰 <b>Salario:</b> {salario}\n"
             f"{cumple_html}"
             f"{verificar_html}"
             f"{motivo_html}"
@@ -1293,6 +1431,67 @@ class TelegramDispatcher:
             f"⚡ <b>Acciones:</b> /interesante_{h[:8]} | /solicitada_{h[:8]} | /descartar_{h[:8]}"
         )
         return bloque
+
+    def formatear_oferta_tarjeta(self, oferta: Dict[str, Any], index: int, total: int) -> str:
+        """Formatea una vacante individual para la tarjeta interactiva paginada con botones."""
+        clase = oferta.get("clasificacion", "A")
+        badge = "🟢 <b>CLASE A (Encaje Directo)</b>" if clase == "A" else "🟡 <b>CLASE B (Encaje Potencial)</b>"
+        
+        req_cumple = oferta.get("requisitos_cumple", [])
+        if isinstance(req_cumple, str):
+            try:
+                req_cumple = json.loads(req_cumple)
+            except Exception:
+                req_cumple = [req_cumple]
+        cumple_items = req_cumple[:3] if req_cumple else []
+        cumple_html = ""
+        if cumple_items:
+            items = "".join([f"  • {c}\n" for c in cumple_items])
+            cumple_html = f"\n<b>✅ Requisitos que cumplo:</b>\n{items}\n"
+
+        motivo = oferta.get("motivo", "")
+        motivo_html = f"\n<b>💡 Por qué merece atención:</b>\n<i>{motivo}</i>\n" if motivo else ""
+        h = (oferta.get('id') or '')[:8]
+        fuente = oferta.get('fuente', 'Portal')
+        salario = formatear_salario(oferta.get('salario', 'No especificado'))
+        horario = oferta.get('horario', 'Tiempo parcial / tarde / fin de semana')
+
+        card = (
+            f"🎯 <b>OFERTA ({index + 1} de {total})</b> | {badge}\n"
+            f"💼 <b>{oferta.get('puesto', 'Sin título')}</b>\n"
+            f"🏢 <b>Empresa:</b> {oferta.get('empresa', 'Confidencial')}\n"
+            f"📍 <b>Ubicación:</b> {oferta.get('ubicacion', '')} ({oferta.get('modalidad', 'No especificada')})\n"
+            f"⏰ <b>Jornada/Turno:</b> {horario}\n"
+            f"💰 <b>Salario:</b> {salario}\n"
+            f"{cumple_html}"
+            f"{motivo_html}"
+            f"🔗 <b>Fuente:</b> {fuente}\n"
+            f"🆔 <code>{h}</code>"
+        )
+        return card
+
+    def construir_teclado_oferta(self, oferta: Dict[str, Any], index: int, total: int) -> List[List[Dict[str, str]]]:
+        """Construye los botones de paginación e interactividad (Anterior, Siguiente, Enlace, Interesante)."""
+        nav_row = []
+        if index > 0:
+            nav_row.append({"text": "⬅️ Anterior", "callback_data": f"of_{index - 1}"})
+        else:
+            nav_row.append({"text": "⏮️ Inicio", "callback_data": "of_noop"})
+
+        nav_row.append({"text": f"📄 {index + 1} / {total}", "callback_data": "of_noop"})
+
+        if index < total - 1:
+            nav_row.append({"text": "Siguiente ➡️", "callback_data": f"of_{index + 1}"})
+        else:
+            nav_row.append({"text": "Fin ⏭️", "callback_data": "of_noop"})
+
+        h = (oferta.get('id') or '')[:8]
+        actions_row = []
+        if oferta.get("url"):
+            actions_row.append({"text": "🔗 Ver Oferta", "url": oferta["url"]})
+        actions_row.append({"text": "⭐ Interesante", "callback_data": f"fav_{h}"})
+
+        return [nav_row, actions_row]
 
 
 # =====================================================================
@@ -1365,41 +1564,37 @@ class JobAgent:
 
         logger.info("Nuevas ofertas insertadas en BD: %d. Relevantes (A/B): %d.", nuevas_procesadas, len(ofertas_notificar))
 
-        # 3. Despacho a Telegram
+        # 3. Exportar inmediatamente JSON de ofertas sincronizado para Cloudflare Worker
+        self.db.exportar_json()
+
+        # 4. Despacho a Telegram (Modo Interactivo con Paginación)
         if ofertas_notificar:
+            total_n = len(ofertas_notificar)
             cabecera = (
                 f"🎯 <b>REPORTE DIARIO DE EMPLEO PERSONALIZADO</b>\n"
                 f"📅 <i>{ahora_str}</i>\n"
-                f"👤 <b>Candidato:</b> Pedro Úbeda Sánchez\n"
-                f"Se han detectado <b>{len(ofertas_notificar)} ofertas</b> con encaje directo o potencial cumpliendo las restricciones horarias y de teletrabajo/Albacete:\n"
-                f"────────────────────────"
+                f"👤 <b>Candidato:</b> Pedro Úbeda Sánchez\n\n"
+                f"Se han detectado <b>{total_n} vacante{'s' if total_n > 1 else ''}</b> con encaje estricto en turno de tarde / tiempo parcial / fin de semana.\n"
+                f"────────────────────────\n"
+                f"👇 <i>Navega por las vacantes con los botones interactivos a continuación:</i>"
             )
-            bloques = [cabecera]
-            for of in ofertas_notificar:
-                bloques.append(self.telegram.formatear_oferta_html(of))
+            self.telegram.enviar_mensaje(cabecera)
 
-            pie = (
-                "💡 <i>Usa el comando CLI para gestionar el estado:</i>\n"
-                "<code>python src/gestionar.py &lt;hash&gt; &lt;ESTADO&gt;</code>"
-            )
-            bloques.append(pie)
-            self.telegram.enviar_bloques(bloques)
+            # Enviar la primera oferta como tarjeta interactiva con botones idénticos a /ofertas
+            primera_of = ofertas_notificar[0]
+            card_html = self.telegram.formatear_oferta_tarjeta(primera_of, 0, total_n)
+            teclado = self.telegram.construir_teclado_oferta(primera_of, 0, total_n)
+            self.telegram.enviar_mensaje(card_html, inline_keyboard=teclado)
         else:
             # Mensaje conciso notificando que no hubo novedades
             msg_tranquilidad = (
                 f"✅ <b>Agente de Empleo: Búsqueda Diaria Finalizada</b>\n"
                 f"📅 <i>{ahora_str}</i>\n\n"
                 f"No se han detectado nuevas ofertas con encaje <b>Clase A</b> o <b>Clase B</b> en las últimas 24 horas "
-                f"que cumplan las restricciones horarias y geográficas (Remoto 100% España o Presencial Tarde Hellín/Albacete).\n\n"
-                f"Base de datos SQLite actualizada correctamente."
+                f"que cumplan las restricciones horarias y geográficas (Turno de tarde, Tiempo parcial o Fines de semana en Remoto España o Albacete/Hellín).\n\n"
+                f"Base de datos SQLite y ofertas.json actualizadas correctamente."
             )
             self.telegram.enviar_mensaje(msg_tranquilidad)
-
-        # 4. Procesar comandos pendientes enviados por el usuario en Telegram
-        self.procesar_comandos_telegram()
-
-        # 5. Exportar JSON de ofertas sincronizado para Cloudflare Worker
-        self.db.exportar_json()
 
         logger.info("=== EJECUCIÓN FINALIZADA SATISFACTORIAMENTE ===")
 

@@ -12,7 +12,7 @@ import json
 SRC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src")
 sys.path.insert(0, SRC_DIR)
 
-from job_agent import DatabaseManager, ProfileMatcher, TelegramDispatcher, generar_hash, limpiar_html
+from job_agent import DatabaseManager, ProfileMatcher, TelegramDispatcher, generar_hash, limpiar_html, formatear_salario
 
 
 class TestProfileMatcher(unittest.TestCase):
@@ -91,7 +91,7 @@ class TestProfileMatcher(unittest.TestCase):
         res = self.matcher.evaluar_oferta(oferta)
         self.assertEqual(res["clasificacion"], "A")
 
-    def test_remoto_horario_no_especificado_clase_b(self):
+    def test_descarte_horario_no_especificado_sin_parcial_clase_c(self):
         oferta = {
             "puesto": "Técnico de Redes y Seguridad",
             "descripcion": "Gestión de redes WAN, switches Cisco, VPN y firewall. Modalidad teletrabajo.",
@@ -100,8 +100,32 @@ class TestProfileMatcher(unittest.TestCase):
             "horario": "No especificado"
         }
         res = self.matcher.evaluar_oferta(oferta)
+        self.assertEqual(res["clasificacion"], "C")
+        self.assertIn("No especifica turno de tarde", res["motivo"])
+
+    def test_descarte_jornada_parcial_manana(self):
+        oferta = {
+            "puesto": "Administrador de Sistemas Linux",
+            "descripcion": "Gestión de servidores Linux y soporte técnico. Horario parcial en turno de mañana.",
+            "ubicacion": "España",
+            "modalidad": "REMOTO",
+            "horario": "Jornada parcial - mañana"
+        }
+        res = self.matcher.evaluar_oferta(oferta)
+        self.assertEqual(res["clasificacion"], "C")
+        self.assertIn("turno de mañana", res["motivo"].lower())
+
+    def test_remoto_tiempo_parcial_flexible_clase_b(self):
+        oferta = {
+            "puesto": "Técnico de Redes y Seguridad",
+            "descripcion": "Gestión de redes WAN, switches Cisco, VPN y firewall. Modalidad teletrabajo 20 horas semanales.",
+            "ubicacion": "España",
+            "modalidad": "REMOTO",
+            "horario": "Tiempo parcial"
+        }
+        res = self.matcher.evaluar_oferta(oferta)
         self.assertEqual(res["clasificacion"], "B")
-        self.assertTrue(any("tiempo parcial" in v or "fin de semana" in v for v in res["requisitos_verificar"]))
+        self.assertTrue(any("tiempo parcial" in v.lower() for v in res["requisitos_verificar"]))
 
     def test_remoto_administrativo_contable_tarde_clase_a(self):
         oferta = {
@@ -293,6 +317,7 @@ class TestTelegramFormatting(unittest.TestCase):
             "clasificacion": "A",
             "ubicacion": "Albacete",
             "modalidad": "Presencial Tardes",
+            "horario": "Turno de tarde",
             "salario": "32.000€ - 38.000€",
             "requisitos_cumple": ["Aviónica y bancos de prueba", "Diagnóstico de hardware"],
             "requisitos_verificar": [],
@@ -303,8 +328,49 @@ class TestTelegramFormatting(unittest.TestCase):
         html = dispatcher.formatear_oferta_html(oferta)
         self.assertIn("Especialista en Simulación y Electrónica", html)
         self.assertIn("CLASE A", html)
+        self.assertIn("Jornada/Turno", html)
+        self.assertIn("Turno de tarde", html)
         self.assertIn("Requisitos que cumplo", html)
         self.assertIn("Hash: abc123def456", html)
+
+    def test_formatear_salario_dict_y_string(self):
+        sal_dict = {'from': 18000, 'to': 22000, 'currencyCode': 'EUR', 'period': 'YEARLY', 'extraOptions': 'Kilometraje', 'isValid': True}
+        res_dict = formatear_salario(sal_dict)
+        self.assertIn("18.000 - 22.000 € / año", res_dict)
+        self.assertIn("Kilometraje", res_dict)
+
+        sal_str = "{'from': 400, 'currencyCode': 'EUR', 'period': 'MONTHLY', 'extraOptions': '15% comisiones'}"
+        res_str = formatear_salario(sal_str)
+        self.assertIn("400 € / mes", res_str)
+        self.assertIn("15% comisiones", res_str)
+
+    def test_tarjeta_interactiva_y_teclado(self):
+        dispatcher = TelegramDispatcher()
+        oferta = {
+            "id": "07683d50eac0",
+            "puesto": "Técnico Informático",
+            "empresa": "TecnoEmpresa",
+            "clasificacion": "A",
+            "ubicacion": "Remoto",
+            "modalidad": "REMOTO",
+            "horario": "Tiempo parcial tardes",
+            "salario": "15.000 € / año",
+            "url": "https://ejemplo.com/of1",
+            "fuente": "Job Today"
+        }
+        tarjeta = dispatcher.formatear_oferta_tarjeta(oferta, 0, 5)
+        self.assertIn("OFERTA (1 de 5)", tarjeta)
+        self.assertIn("Jornada/Turno", tarjeta)
+        self.assertIn("Tiempo parcial tardes", tarjeta)
+
+        teclado = dispatcher.construir_teclado_oferta(oferta, 0, 5)
+        self.assertEqual(len(teclado), 2)
+        # Fila 1: [Inicio, 1 / 5, Siguiente]
+        self.assertEqual(teclado[0][1]["text"], "📄 1 / 5")
+        self.assertEqual(teclado[0][2]["callback_data"], "of_1")
+        # Fila 2: [Ver Oferta, Interesante]
+        self.assertEqual(teclado[1][0]["url"], "https://ejemplo.com/of1")
+        self.assertEqual(teclado[1][1]["callback_data"], "fav_07683d50")
 
 
 if __name__ == "__main__":
