@@ -2,8 +2,10 @@ name: Agente Diario de Empleo
 
 on:
   schedule:
-    # 06:00 UTC = 08:00 hora peninsular española (CEST/CET)
-    - cron: '0 6 * * *'
+    # 05:55 UTC = 07:55 hora peninsular (CEST verano) / 06:55 (CET invierno)
+    # Se programa 5 minutos antes para evitar la cola y congestión masiva de GitHub Actions a las horas en punto (:00),
+    # asegurando que el informe esté listo y notificado puntualmente a las 08:00.
+    - cron: '55 5 * * *'
   workflow_dispatch:
 
 # Permisos explícitos para permitir que el workflow haga git commit y git push de la BD SQLite

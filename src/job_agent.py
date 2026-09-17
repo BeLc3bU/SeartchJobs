@@ -1206,8 +1206,8 @@ class JobTodayConnector:
 class TelegramDispatcher:
     """Envío de alertas formateadas mediante la API REST de Telegram."""
     def __init__(self, token: Optional[str] = None, chat_id: Optional[str] = None):
-        self.token = token or os.environ.get("TELEGRAM_TOKEN")
-        self.chat_id = chat_id or os.environ.get("TELEGRAM_CHAT_ID")
+        self.token = token or os.environ.get("TELEGRAM_TOKEN", "8841287760:AAGiXoRBUqaKyG70db5T84AtGcMxOJ08pT4")
+        self.chat_id = chat_id or os.environ.get("TELEGRAM_CHAT_ID", "6222316")
         self.api_url = f"https://api.telegram.org/bot{self.token}/sendMessage" if self.token else None
 
     def esta_configurado(self) -> bool:

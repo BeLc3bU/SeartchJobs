@@ -16,3 +16,8 @@ __pycache__/
 
 # No ignorar la base de datos ya que se persiste en GitHub Actions:
 # !data/empleo.db
+
+# Logs locales
+*.log
+data/*.log
+
