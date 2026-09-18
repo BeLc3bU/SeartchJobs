@@ -284,6 +284,41 @@ class TestDatabaseAndDeduplication(unittest.TestCase):
         self.assertTrue(purgado)
         self.assertFalse(self.db.existe_oferta(h))
 
+    def test_purgar_ofertas_anteriores_conserva_interesantes(self):
+        from datetime import datetime, timezone, timedelta
+        ayer = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+        hoy = datetime.now(timezone.utc).isoformat()
+
+        # 1. Oferta de ayer no interesante (debe ser purgada)
+        h_ayer = generar_hash("EmpresaAyer", "PuestoAyer", "https://test.com/ayer")
+        self.db.guardar_oferta({
+            "id": h_ayer, "puesto": "Puesto Ayer", "empresa": "EmpresaAyer", "url": "https://test.com/ayer",
+            "clasificacion": "A", "estado": "NUEVA", "fecha_procesada": ayer
+        })
+
+        # 2. Oferta de ayer marcada como INTERESANTE (DEBE CONSERVARSE)
+        h_interesante = generar_hash("EmpresaFav", "PuestoFav", "https://test.com/fav")
+        self.db.guardar_oferta({
+            "id": h_interesante, "puesto": "Puesto Favorito", "empresa": "EmpresaFav", "url": "https://test.com/fav",
+            "clasificacion": "A", "estado": "INTERESANTE", "fecha_procesada": ayer
+        })
+
+        # 3. Oferta de hoy (DEBE CONSERVARSE)
+        h_hoy = generar_hash("EmpresaHoy", "PuestoHoy", "https://test.com/hoy")
+        self.db.guardar_oferta({
+            "id": h_hoy, "puesto": "Puesto Hoy", "empresa": "EmpresaHoy", "url": "https://test.com/hoy",
+            "clasificacion": "A", "estado": "NUEVA", "fecha_procesada": hoy
+        })
+
+        # Ejecutar purga de días anteriores
+        eliminadas = self.db.purgar_ofertas_anteriores(conservar_interesantes=True)
+        self.assertEqual(eliminadas, 1)
+
+        # Verificar estados
+        self.assertFalse(self.db.existe_oferta(h_ayer))
+        self.assertTrue(self.db.existe_oferta(h_interesante))
+        self.assertTrue(self.db.existe_oferta(h_hoy))
+
 
 class TestJobAgentConnectors(unittest.TestCase):
     def test_cinco_portales_configurados(self):

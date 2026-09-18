@@ -2,10 +2,14 @@ name: Agente Diario de Empleo
 
 on:
   schedule:
-    # 05:55 UTC = 07:55 hora peninsular (CEST verano) / 06:55 (CET invierno)
-    # Se programa 5 minutos antes para evitar la cola y congestión masiva de GitHub Actions a las horas en punto (:00),
-    # asegurando que el informe esté listo y notificado puntualmente a las 08:00.
-    - cron: '55 5 * * *'
+    # 06:15 UTC = 08:15 hora peninsular (CEST verano) / 07:15 (CET invierno)
+    # Se programa en minuto :15 para evitar saturación y colas en los servidores de GitHub Actions
+    - cron: '15 6 * * *'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/empleo.yml'
   workflow_dispatch:
 
 # Permisos explícitos para permitir que el workflow haga git commit y git push de la BD SQLite
@@ -41,6 +45,7 @@ jobs:
           python src/job_agent.py
 
       - name: Persistir Base de Datos SQLite en el Repositorio
+        if: always()
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
@@ -52,9 +57,9 @@ jobs:
           if git diff --staged --quiet; then
             echo "No hay cambios nuevos en data/. No se requiere commit."
           else
-            git commit -m "chore: actualización automática bd empleo y ofertas json [skip ci]"
+            git commit -m "chore: actualización automática bd empleo y ofertas json [skip ci]" || true
             git pull --rebase origin main || true
-            git push origin main
-            echo "Cambios en data/empleo.db y data/ofertas.json guardados y subidos al repositorio."
+            git push origin main || echo "Aviso: no se pudo sincronizar git push, pero la búsqueda y notificación se completaron con éxito."
+            echo "Base de datos y ofertas.json actualizados."
           fi
 

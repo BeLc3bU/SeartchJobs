@@ -161,13 +161,19 @@ def mostrar_info(hash_prefix: str):
         print(f"   {of.get('motivo', 'N/A')}\n")
 
 
-def purgar_base_datos():
+def purgar_base_datos(conservar_interesantes: bool = True):
     from datetime import datetime, timezone
     with get_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM ofertas")
-        total = cursor.fetchone()[0]
-        cursor.execute("DELETE FROM ofertas")
+        if conservar_interesantes:
+            cursor.execute("SELECT COUNT(*) FROM ofertas WHERE estado NOT IN ('INTERESANTE', 'SOLICITADA')")
+            total = cursor.fetchone()[0]
+            cursor.execute("DELETE FROM ofertas WHERE estado NOT IN ('INTERESANTE', 'SOLICITADA')")
+        else:
+            cursor.execute("SELECT COUNT(*) FROM ofertas")
+            total = cursor.fetchone()[0]
+            cursor.execute("DELETE FROM ofertas")
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS metadata (
                 clave TEXT PRIMARY KEY,
@@ -180,12 +186,28 @@ def purgar_base_datos():
         cursor.execute("VACUUM")
         conn.commit()
 
+        cursor.execute("""
+            SELECT id, puesto, empresa, ubicacion, modalidad, horario, salario,
+                   url, fuente, clasificacion, estado, requisitos_cumple,
+                   requisitos_verificar, motivo, fecha_publicacion, fecha_procesada
+            FROM ofertas
+            WHERE clasificacion IN ('A', 'B')
+            ORDER BY clasificacion ASC, fecha_procesada DESC
+        """)
+        filas = cursor.fetchall()
+        datos = []
+        for f in filas:
+            d = dict(f)
+            d["requisitos_cumple"] = json.loads(d["requisitos_cumple"] or "[]")
+            d["requisitos_verificar"] = json.loads(d["requisitos_verificar"] or "[]")
+            datos.append(d)
+
     json_path = os.path.join(os.path.dirname(DB_PATH), "ofertas.json")
     with open(json_path, "w", encoding="utf-8") as f:
-        f.write("[]\n")
+        json.dump(datos, f, ensure_ascii=False, indent=2)
 
-    print(f"🧹 Base de datos purgada con éxito. Se eliminaron {total} ofertas registradas.")
-    print(f"📄 Archivo '{json_path}' restablecido a lista vacía.")
+    print(f"🧹 Base de datos purgada con éxito. Se eliminaron {total} ofertas (conservando interesantes/solicitadas).")
+    print(f"📄 Archivo '{json_path}' sincronizado ({len(datos)} ofertas activas).")
 
 
 def ayuda():

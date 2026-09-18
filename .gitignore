@@ -21,3 +21,7 @@ __pycache__/
 *.log
 data/*.log
 
+# Tests temporales
+tests/*.db
+tests/*.json
+

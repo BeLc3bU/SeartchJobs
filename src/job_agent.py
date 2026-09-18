@@ -203,13 +203,48 @@ class DatabaseManager:
                 res.append(d)
             return res
 
-    def purgar(self) -> int:
-        """Elimina todas las ofertas de la base de datos y restablece ofertas.json."""
+    def purgar_ofertas_anteriores(self, conservar_interesantes: bool = True) -> int:
+        """
+        Purga las ofertas registradas en días anteriores a hoy (UTC),
+        conservando obligatoriamente aquellas marcadas como 'INTERESANTE' o 'SOLICITADA'.
+        """
+        hoy_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         with self._get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT COUNT(*) FROM ofertas")
-            total = cursor.fetchone()[0]
-            cursor.execute("DELETE FROM ofertas")
+            if conservar_interesantes:
+                cursor.execute("""
+                    DELETE FROM ofertas 
+                    WHERE DATE(fecha_procesada) < ? 
+                      AND estado NOT IN ('INTERESANTE', 'SOLICITADA')
+                """, (hoy_str,))
+            else:
+                cursor.execute("""
+                    DELETE FROM ofertas 
+                    WHERE DATE(fecha_procesada) < ?
+                """, (hoy_str,))
+            eliminadas = cursor.rowcount
+            cursor.execute("INSERT OR REPLACE INTO metadata (clave, valor) VALUES ('ultima_purga', ?)",
+                           (datetime.now(timezone.utc).isoformat(),))
+            conn.commit()
+            cursor.execute("VACUUM")
+            conn.commit()
+
+        self.exportar_json()
+        logger.info("Purga de ofertas anteriores completada: %d ofertas eliminadas.", eliminadas)
+        return eliminadas
+
+    def purgar(self, conservar_interesantes: bool = False) -> int:
+        """Elimina ofertas de la base de datos y restablece ofertas.json. Permite conservar 'INTERESANTE' y 'SOLICITADA' si se solicita."""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            if conservar_interesantes:
+                cursor.execute("SELECT COUNT(*) FROM ofertas WHERE estado NOT IN ('INTERESANTE', 'SOLICITADA')")
+                total = cursor.fetchone()[0]
+                cursor.execute("DELETE FROM ofertas WHERE estado NOT IN ('INTERESANTE', 'SOLICITADA')")
+            else:
+                cursor.execute("SELECT COUNT(*) FROM ofertas")
+                total = cursor.fetchone()[0]
+                cursor.execute("DELETE FROM ofertas")
             cursor.execute("INSERT OR REPLACE INTO metadata (clave, valor) VALUES ('ultima_purga', ?)",
                            (datetime.now(timezone.utc).isoformat(),))
             conn.commit()
@@ -1517,9 +1552,10 @@ class JobAgent:
         logger.info("=== INICIANDO AGENTE DE BÚSQUEDA DE EMPLEO ===")
         ahora_str = datetime.now(timezone.utc).strftime("%d/%m/%Y %H:%M UTC")
 
-        # 0. Limpieza periódica semanal de la base de datos
-        if self.db.purgar_semanal_si_procede(dias=7):
-            logger.info("Purga semanal ejecutada: base de datos renovada para nueva búsqueda limpia.")
+        # 0. Purga automática de ofertas de días anteriores (preservando siempre 'INTERESANTE' y 'SOLICITADA')
+        eliminadas = self.db.purgar_ofertas_anteriores(conservar_interesantes=True)
+        if eliminadas > 0:
+            logger.info("Purga diaria: %d ofertas de días anteriores no interesantes eliminadas.", eliminadas)
 
         # 1. Asegurar coherencia histórica de la base de datos con los filtros actuales
         self.db.reclasificar_bd(self.matcher)
