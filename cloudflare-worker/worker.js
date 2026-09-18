@@ -458,32 +458,53 @@ async function handleCommand(text, chatId, token, env) {
   }
 
   if (t.startsWith("/buscar")) {
-    if (env.GITHUB_TOKEN) {
+    const ghToken = env.GITHUB_TOKEN;
+    if (ghToken) {
       try {
         const ghUrl = "https://api.github.com/repos/BeLc3bU/SeartchJobs/actions/workflows/empleo.yml/dispatches";
         const ghResp = await fetch(ghUrl, {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${env.GITHUB_TOKEN}`,
+            "Authorization": `Bearer ${ghToken.trim()}`,
             "Accept": "application/vnd.github+json",
             "User-Agent": "Cloudflare-Worker-SearchJobs",
           },
           body: JSON.stringify({ ref: "main" }),
         });
         if (ghResp.status === 204) {
-          await sendTelegramMessage(token, chatId, "🚀 <b>Búsqueda en vivo lanzada en GitHub Actions.</b>\nEl agente está rastreando los 5 portales. Recibirás las novedades en cuanto concluya.");
+          const msgOk = 
+            `🚀 <b>¡BÚSQUEDA EN TIEMPO REAL INICIADA!</b>\n\n` +
+            `El agente autónomo está rastreando en este momento los 5 portales de empleo en la nube (Tecnoempleo, InfoJobs, LinkedIn, Indeed y Job Today).\n\n` +
+            `⏱️ <i>En 1-2 minutos recibirás aquí mismo el reporte detallado con las nuevas vacantes detectadas.</i>`;
+          await sendTelegramMessage(token, chatId, msgOk);
+          return;
+        } else {
+          const errText = await ghResp.text().catch(() => "");
+          console.error("Error disparando GitHub Actions:", ghResp.status, errText);
+          const msgErr = 
+            `⚠️ <b>No se pudo iniciar la búsqueda en GitHub Actions (HTTP ${ghResp.status}).</b>\n\n` +
+            `Verifica que el secreto <code>GITHUB_TOKEN</code> en Cloudflare tenga asignado el permiso <b>workflow</b>.`;
+          await sendTelegramMessage(token, chatId, msgErr);
           return;
         }
       } catch (e) {
         console.error("Error disparando GitHub Actions:", e);
+        await sendTelegramMessage(token, chatId, `❌ Error conectando con GitHub Actions: ${e.message}`);
+        return;
       }
     }
     
-    await sendTelegramMessage(
-      token, 
-      chatId, 
-      "🚀 <b>Búsqueda programada activa.</b>\nEl rastreador corre automáticamente cada mañana a las 08:00 hora peninsular. Puedes explorar todas las ofertas activas tocando <b>/ofertas</b>."
-    );
+    const msgConfig = 
+      `⚡ <b>COMANDO /buscar (Búsqueda en vivo 24/7 sin PC)</b>\n\n` +
+      `Para que Cloudflare pueda ordenar a GitHub que ejecute la búsqueda bajo demanda cuando tocas <b>/buscar</b>, añade tu token de GitHub en Cloudflare:\n\n` +
+      `1️⃣ Entra en tu panel de <b>Cloudflare ➔ Workers ➔ searchjobs-bot</b>.\n` +
+      `2️⃣ Ve a la pestaña <b>Settings ➔ Variables and Secrets</b>.\n` +
+      `3️⃣ Pulsa <b>Add</b> (Secret) con:\n` +
+      `   • Nombre: <code>GITHUB_TOKEN</code>\n` +
+      `   • Valor: <i>(Tu GitHub Personal Access Token con permiso 'workflow')</i>\n` +
+      `4️⃣ Pulsa <b>Deploy</b>.\n\n` +
+      `💡 <i>Una vez añadido este secreto, cada vez que envíes <b>/buscar</b> se lanzará la búsqueda completa en la nube al instante.</i>`;
+    await sendTelegramMessage(token, chatId, msgConfig);
     return;
   }
 

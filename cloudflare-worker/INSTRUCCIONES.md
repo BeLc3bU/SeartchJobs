@@ -32,6 +32,10 @@ Con este Webhook, tu bot de Telegram **@UbedaBot** responderá al instante las 2
      * Type: **Secret** o **Variable**
      * Name: `TELEGRAM_CHAT_ID`
      * Value: `6222316`
+   * **Variable 3 (Secreto opcional para /buscar en vivo):**
+     * Type: **Secret**
+     * Name: `GITHUB_TOKEN`
+     * Value: Tu Personal Access Token de GitHub con permiso `workflow` (permite lanzar `/buscar` en GitHub Actions desde tu móvil en cualquier momento)
 3. Pulsa **Save and deploy**.
 
 ---

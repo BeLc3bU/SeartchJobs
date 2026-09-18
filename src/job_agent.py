@@ -1752,6 +1752,10 @@ class JobAgent:
                     else:
                         self.telegram.enviar_mensaje(f"⚠️ No se encontró la oferta con hash '{h}'.")
 
+                elif texto.startswith("/buscar"):
+                    self.telegram.enviar_mensaje("🚀 <b>Iniciando búsqueda de empleo en tiempo real...</b>\nConsultando los 5 portales de empleo. Espera unos instantes...")
+                    self.ejecutar()
+
             # Confirmar lectura a Telegram mediante offset para no reprocesar los mismos mensajes
             if max_update_id > 0:
                 requests.get(f"{url}?offset={max_update_id + 1}", timeout=10)
