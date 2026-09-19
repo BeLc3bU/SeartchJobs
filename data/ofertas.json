@@ -17,7 +17,7 @@
     "requisitos_verificar": [],
     "motivo": "Teletrabajo 100% compatible. Horario: Turno de tarde + Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "2026-09-04T10:29:04Z",
-    "fecha_procesada": "2026-09-18T07:45:22.867347+00:00"
+    "fecha_procesada": "2026-09-19T11:05:15.350133+00:00"
   },
   {
     "id": "6ed2c94bd321",
@@ -37,7 +37,7 @@
     "requisitos_verificar": [],
     "motivo": "Posición local en Hellín/Albacete. Horario: Turno de tarde + Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "2026-09-10T11:52:30Z",
-    "fecha_procesada": "2026-09-18T07:45:22.833380+00:00"
+    "fecha_procesada": "2026-09-19T11:05:15.314518+00:00"
   },
   {
     "id": "200ae2ace383",
@@ -57,7 +57,7 @@
     "requisitos_verificar": [],
     "motivo": "Posición local en Hellín/Albacete. Horario: Fin de semana + Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "2026-09-14T08:17:13Z",
-    "fecha_procesada": "2026-09-18T07:45:22.825605+00:00"
+    "fecha_procesada": "2026-09-19T11:05:15.305559+00:00"
   },
   {
     "id": "d9dd1e87a4e4",
@@ -77,53 +77,7 @@
     "requisitos_verificar": [],
     "motivo": "Teletrabajo 100% compatible. Horario: Turno de tarde. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "Mon, 14 Sep 2026 07:28:53 +0000",
-    "fecha_procesada": "2026-09-18T07:45:22.720775+00:00"
-  },
-  {
-    "id": "46cb4e0c2605",
-    "puesto": "Administrativo/a CAE (PRL)",
-    "empresa": "SII Group Spain",
-    "ubicacion": "Madrid",
-    "modalidad": "REMOTO",
-    "horario": "No especificado",
-    "salario": "No especificado",
-    "url": "https://jobtoday.com/es/trabajo/es34ced10b21e5dd72a978e265c8ebc878390936856aa3ade251630ad0f5ebb160",
-    "fuente": "Job Today",
-    "clasificacion": "B",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Administración de sistemas y redes: redes",
-      "Gestión administrativa, contable y documental: administrativo, administrativa, archivo"
-    ],
-    "requisitos_verificar": [
-      "Verificar nivel de inglés formal B2",
-      "Verificar nivel de inglés formal C1"
-    ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Fin de semana. Oportunidad sólida en Administración / Gestión / Contabilidad + Sistemas / Redes / ASIR donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "1789430400000",
-    "fecha_procesada": "2026-09-18T20:08:25.530571+00:00"
-  },
-  {
-    "id": "fc4467fd90db",
-    "puesto": "Ingeniero/a Proyectos Nucleares",
-    "empresa": "HAYS",
-    "ubicacion": "hibrido",
-    "modalidad": "REMOTO",
-    "horario": "No especificado",
-    "salario": "Sin especificar",
-    "url": "https://www.tecnoempleo.com/ingeniero-proyectos-nucleares-hays/pipe-stress-analysis-fem/rf-cf391ac4b2a9e3d4814b",
-    "fuente": "Tecnoempleo",
-    "clasificacion": "B",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Administración de sistemas y redes: soporte técnico"
-    ],
-    "requisitos_verificar": [
-      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
-    ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "Fri, 18 Sep 2026 07:56:49 +0000",
-    "fecha_procesada": "2026-09-18T08:16:13.177593+00:00"
+    "fecha_procesada": "2026-09-19T11:05:15.243116+00:00"
   },
   {
     "id": "fa4d2be73c93",
@@ -145,6 +99,28 @@
     ],
     "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "1785941129662",
-    "fecha_procesada": "2026-09-18T07:45:23.185808+00:00"
+    "fecha_procesada": "2026-09-19T11:05:15.615401+00:00"
+  },
+  {
+    "id": "fc4467fd90db",
+    "puesto": "Ingeniero/a Proyectos Nucleares",
+    "empresa": "HAYS",
+    "ubicacion": "hibrido",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "Sin especificar",
+    "url": "https://www.tecnoempleo.com/ingeniero-proyectos-nucleares-hays/pipe-stress-analysis-fem/rf-cf391ac4b2a9e3d4814b",
+    "fuente": "Tecnoempleo",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Administración de sistemas y redes: soporte técnico"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Fri, 18 Sep 2026 07:56:49 +0000",
+    "fecha_procesada": "2026-09-19T11:05:15.025857+00:00"
   }
 ]
