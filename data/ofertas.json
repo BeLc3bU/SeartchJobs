@@ -17,7 +17,7 @@
     "requisitos_verificar": [],
     "motivo": "Teletrabajo 100% compatible. Horario: Turno de tarde + Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "2026-09-04T10:29:04Z",
-    "fecha_procesada": "2026-09-21T06:30:49.115667+00:00"
+    "fecha_procesada": "2026-09-22T11:34:18.463164+00:00"
   },
   {
     "id": "6ed2c94bd321",
@@ -37,7 +37,7 @@
     "requisitos_verificar": [],
     "motivo": "Posición local en Hellín/Albacete. Horario: Turno de tarde + Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "2026-09-10T11:52:30Z",
-    "fecha_procesada": "2026-09-21T06:30:49.073294+00:00"
+    "fecha_procesada": "2026-09-22T11:34:18.416073+00:00"
   },
   {
     "id": "200ae2ace383",
@@ -57,52 +57,55 @@
     "requisitos_verificar": [],
     "motivo": "Posición local en Hellín/Albacete. Horario: Fin de semana + Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "2026-09-14T08:17:13Z",
-    "fecha_procesada": "2026-09-21T06:30:49.064428+00:00"
+    "fecha_procesada": "2026-09-22T11:34:18.406798+00:00"
   },
   {
-    "id": "d9dd1e87a4e4",
-    "puesto": "Desarrollador /a ABAP SAP HCM",
-    "empresa": "Temps ETT",
-    "ubicacion": "hibrido",
+    "id": "90fff8e9df6f",
+    "puesto": "Administrativo/a de Licitaciones",
+    "empresa": "SII Group Spain",
+    "ubicacion": "Madrid",
     "modalidad": "REMOTO",
     "horario": "No especificado",
-    "salario": "Sin especificar",
-    "url": "https://www.tecnoempleo.com/desarrollador-abap-sap-hcm/sap-hcm-sap-pa/rf-762914029209f3659d40",
-    "fuente": "Tecnoempleo",
-    "clasificacion": "A",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Gestión administrativa, contable y documental: administración, sap"
-    ],
-    "requisitos_verificar": [],
-    "motivo": "Teletrabajo 100% compatible. Horario: Turno de tarde. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "Mon, 14 Sep 2026 07:28:53 +0000",
-    "fecha_procesada": "2026-09-21T06:30:48.978820+00:00"
-  },
-  {
-    "id": "8500454fc14d",
-    "puesto": "Técnico/a informático/a L2 senior, inglés alto",
-    "empresa": "Sosmatic",
-    "ubicacion": "presencial",
-    "modalidad": "REMOTO",
-    "horario": "No especificado",
-    "salario": "27000 € - 27000 €  Bruto/año",
-    "url": "https://www.tecnoempleo.com/tecnico-informatico-l2-senior-ingles-alto-sosmatic/ticketing-m365/rf-b0451253821f83ed534e",
-    "fuente": "Tecnoempleo",
+    "salario": "No especificado",
+    "url": "https://jobtoday.com/es/trabajo/es4b9f464c3482697266a76b63a6d6a7ff7aff85551d7c7b0c523b1ebaa86c618d",
+    "fuente": "Job Today",
     "clasificacion": "B",
     "estado": "NUEVA",
     "requisitos_cumple": [
-      "Administración de sistemas y redes: soporte técnico, helpdesk",
-      "Automatización y scripting: scripting"
+      "Administración de sistemas y redes: redes",
+      "Gestión administrativa, contable y documental: administrativo, administrativa, administración, excel"
     ],
     "requisitos_verificar": [
-      "Verificar certificación en marco ITIL",
-      "Verificar nivel de inglés requerido (B2/C1) para operativa diaria",
-      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+      "Verificar nivel de inglés formal B2",
+      "Verificar nivel de inglés formal C1"
     ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR + Desarrollo / Automatización donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "Mon, 21 Sep 2026 09:39:31 +0000",
-    "fecha_procesada": "2026-09-21T12:55:06.450917+00:00"
+    "motivo": "Teletrabajo 100% compatible. Horario: Fin de semana. Oportunidad sólida en Sistemas / Redes / ASIR + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "1789862400000",
+    "fecha_procesada": "2026-09-22T11:34:18.944117+00:00"
+  },
+  {
+    "id": "46cb4e0c2605",
+    "puesto": "Administrativo/a CAE (PRL)",
+    "empresa": "SII Group Spain",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "No especificado",
+    "url": "https://jobtoday.com/es/trabajo/es34ced10b21e5dd72a978e265c8ebc878390936856aa3ade251630ad0f5ebb160",
+    "fuente": "Job Today",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Administración de sistemas y redes: redes",
+      "Gestión administrativa, contable y documental: administrativo, administrativa, archivo"
+    ],
+    "requisitos_verificar": [
+      "Verificar nivel de inglés formal B2",
+      "Verificar nivel de inglés formal C1"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Fin de semana. Oportunidad sólida en Sistemas / Redes / ASIR + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "1789862400000",
+    "fecha_procesada": "2026-09-22T11:34:18.899067+00:00"
   },
   {
     "id": "fa4d2be73c93",
@@ -124,7 +127,7 @@
     ],
     "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "1785941129662",
-    "fecha_procesada": "2026-09-21T06:30:49.483492+00:00"
+    "fecha_procesada": "2026-09-22T11:34:18.726198+00:00"
   },
   {
     "id": "fc4467fd90db",
@@ -146,6 +149,6 @@
     ],
     "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "Fri, 18 Sep 2026 07:56:49 +0000",
-    "fecha_procesada": "2026-09-21T06:30:48.635307+00:00"
+    "fecha_procesada": "2026-09-22T11:34:18.252059+00:00"
   }
 ]
