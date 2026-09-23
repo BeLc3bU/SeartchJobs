@@ -17,7 +17,7 @@
     "requisitos_verificar": [],
     "motivo": "Teletrabajo 100% compatible. Horario: Turno de tarde + Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "2026-09-04T10:29:04Z",
-    "fecha_procesada": "2026-09-22T11:34:18.463164+00:00"
+    "fecha_procesada": "2026-09-23T11:43:46.533281+00:00"
   },
   {
     "id": "6ed2c94bd321",
@@ -37,7 +37,7 @@
     "requisitos_verificar": [],
     "motivo": "Posición local en Hellín/Albacete. Horario: Turno de tarde + Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "2026-09-10T11:52:30Z",
-    "fecha_procesada": "2026-09-22T11:34:18.416073+00:00"
+    "fecha_procesada": "2026-09-23T11:43:46.491428+00:00"
   },
   {
     "id": "200ae2ace383",
@@ -57,7 +57,7 @@
     "requisitos_verificar": [],
     "motivo": "Posición local en Hellín/Albacete. Horario: Fin de semana + Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "2026-09-14T08:17:13Z",
-    "fecha_procesada": "2026-09-22T11:34:18.406798+00:00"
+    "fecha_procesada": "2026-09-23T11:43:46.483516+00:00"
   },
   {
     "id": "90fff8e9df6f",
@@ -81,7 +81,7 @@
     ],
     "motivo": "Teletrabajo 100% compatible. Horario: Fin de semana. Oportunidad sólida en Sistemas / Redes / ASIR + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "1789862400000",
-    "fecha_procesada": "2026-09-22T11:34:18.944117+00:00"
+    "fecha_procesada": "2026-09-23T11:43:46.905810+00:00"
   },
   {
     "id": "46cb4e0c2605",
@@ -105,7 +105,7 @@
     ],
     "motivo": "Teletrabajo 100% compatible. Horario: Fin de semana. Oportunidad sólida en Sistemas / Redes / ASIR + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "1789862400000",
-    "fecha_procesada": "2026-09-22T11:34:18.899067+00:00"
+    "fecha_procesada": "2026-09-23T11:43:46.861768+00:00"
   },
   {
     "id": "fa4d2be73c93",
@@ -127,7 +127,29 @@
     ],
     "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "1785941129662",
-    "fecha_procesada": "2026-09-22T11:34:18.726198+00:00"
+    "fecha_procesada": "2026-09-23T11:43:46.760007+00:00"
+  },
+  {
+    "id": "b785d10e8a8b",
+    "puesto": "MOZO/A JORNADA PARCIAL 15H SEMANALES ALBACETE",
+    "empresa": "SEUR",
+    "ubicacion": "Albacete",
+    "modalidad": "PRESENCIAL",
+    "horario": "Jornada parcial - indiferente",
+    "salario": "No especificado",
+    "url": "https://www.infojobs.net/albacete/mozo-jornada-parcial-15h-semanales-albacete/of-ib83eb5199b468cb6c56d47dcf358df?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
+    "fuente": "InfoJobs",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión de material, almacén y control de calidad: logística"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Posición local en Hellín/Albacete. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "2026-09-23T11:33:05Z",
+    "fecha_procesada": "2026-09-23T11:43:46.467058+00:00"
   },
   {
     "id": "fc4467fd90db",
@@ -149,6 +171,6 @@
     ],
     "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "Fri, 18 Sep 2026 07:56:49 +0000",
-    "fecha_procesada": "2026-09-22T11:34:18.252059+00:00"
+    "fecha_procesada": "2026-09-23T11:43:46.358611+00:00"
   }
 ]
