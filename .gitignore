@@ -25,3 +25,6 @@ data/*.log
 tests/*.db
 tests/*.json
 
+# Superpowers scratch y ledger
+.superpowers/
+
