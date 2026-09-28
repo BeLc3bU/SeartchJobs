@@ -203,12 +203,14 @@ class DatabaseManager:
                 res.append(d)
             return res
 
-    def purgar_ofertas_anteriores(self, conservar_interesantes: bool = True) -> int:
+    def purgar_ofertas_antiguas(self, dias: int = 60, conservar_interesantes: bool = True) -> int:
         """
-        Purga las ofertas registradas en días anteriores a hoy (UTC),
+        Purga las ofertas con más de 'dias' días de antigüedad para mantener la BD ligera,
         conservando obligatoriamente aquellas marcadas como 'INTERESANTE' o 'SOLICITADA'.
+        Las ofertas de los últimos 'dias' días se preservan en SQLite para evitar que los anuncios
+        que siguen publicados en los portales vuelvan a notificarse como nuevos.
         """
-        hoy_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        limite_str = (datetime.now(timezone.utc) - timedelta(days=dias)).strftime("%Y-%m-%d")
         with self._get_connection() as conn:
             cursor = conn.cursor()
             if conservar_interesantes:
@@ -216,22 +218,25 @@ class DatabaseManager:
                     DELETE FROM ofertas 
                     WHERE DATE(fecha_procesada) < ? 
                       AND estado NOT IN ('INTERESANTE', 'SOLICITADA')
-                """, (hoy_str,))
+                """, (limite_str,))
             else:
                 cursor.execute("""
                     DELETE FROM ofertas 
                     WHERE DATE(fecha_procesada) < ?
-                """, (hoy_str,))
+                """, (limite_str,))
             eliminadas = cursor.rowcount
-            cursor.execute("INSERT OR REPLACE INTO metadata (clave, valor) VALUES ('ultima_purga', ?)",
-                           (datetime.now(timezone.utc).isoformat(),))
-            conn.commit()
-            cursor.execute("VACUUM")
-            conn.commit()
+            if eliminadas > 0:
+                cursor.execute("INSERT OR REPLACE INTO metadata (clave, valor) VALUES ('ultima_purga', ?)",
+                               (datetime.now(timezone.utc).isoformat(),))
+                conn.commit()
+                cursor.execute("VACUUM")
+                conn.commit()
+                logger.info("Purga de ofertas antiguas (>%d días) completada: %d ofertas eliminadas.", dias, eliminadas)
+            return eliminadas
 
-        self.exportar_json()
-        logger.info("Purga de ofertas anteriores completada: %d ofertas eliminadas.", eliminadas)
-        return eliminadas
+    def purgar_ofertas_anteriores(self, conservar_interesantes: bool = True, dias: int = 60) -> int:
+        """Alias de compatibilidad que aplica la retención mínima de 60 días para deduplicación estricta."""
+        return self.purgar_ofertas_antiguas(dias=dias, conservar_interesantes=conservar_interesantes)
 
     def purgar(self, conservar_interesantes: bool = False) -> int:
         """Elimina ofertas de la base de datos y restablece ofertas.json. Permite conservar 'INTERESANTE' y 'SOLICITADA' si se solicita."""
@@ -257,8 +262,8 @@ class DatabaseManager:
 
     def purgar_semanal_si_procede(self, dias: int = 7) -> bool:
         """
-        Verifica si han transcurrido 'dias' (7 por defecto) desde la última purga.
-        Si es así, purga la base de datos para mantenerla limpia y actualizada semanalmente.
+        Verifica si han transcurrido 'dias' (7 por defecto) desde la última revisión de mantenimiento.
+        Si es así, purga ofertas con más de 60 días de antigüedad sin borrar las ofertas recientes.
         """
         with self._get_connection() as conn:
             cursor = conn.cursor()
@@ -266,7 +271,6 @@ class DatabaseManager:
             fila = cursor.fetchone()
 
         if not fila:
-            # Primera vez que se registra: inicializar fecha para que purgue tras 7 días
             with self._get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute("INSERT OR REPLACE INTO metadata (clave, valor) VALUES ('ultima_purga', ?)",
@@ -280,8 +284,8 @@ class DatabaseManager:
                 ultima_fecha = ultima_fecha.replace(tzinfo=timezone.utc)
             diferencia = datetime.now(timezone.utc) - ultima_fecha
             if diferencia >= timedelta(days=dias):
-                logger.info("Han pasado %d días desde la última purga (%s). Ejecutando purga semanal...", diferencia.days, fila["valor"])
-                self.purgar()
+                logger.info("Han pasado %d días desde el último mantenimiento. Purgando ofertas de más de 60 días...", diferencia.days)
+                self.purgar_ofertas_antiguas(dias=60, conservar_interesantes=True)
                 return True
         except Exception as e:
             logger.warning("Error al evaluar fecha de última purga: %s", e)
@@ -323,10 +327,17 @@ class DatabaseManager:
             conn.commit()
             return dict(of)
 
-    def exportar_json(self, output_path: Optional[str] = None):
-        """Exporta las ofertas de Clase A y B a un archivo JSON para consumo por el Webhook de Cloudflare."""
+    def exportar_json(self, output_path: Optional[str] = None, solo_nuevas_horas: int = 48):
+        """
+        Exporta las ofertas relevantes a un archivo JSON para consumo por el Webhook de Cloudflare.
+        Incluye:
+          - Todas las ofertas marcadas como 'INTERESANTE' o 'SOLICITADA' (permanentes para /interesantes).
+          - Ofertas de Clase A y B en estado 'NUEVA' detectadas en las últimas 'solo_nuevas_horas' horas.
+        Garantiza que anuncios antiguos de días anteriores no vuelvan a salir en /ofertas.
+        """
         if not output_path:
             output_path = os.path.join(os.path.dirname(self.db_path), "ofertas.json")
+        limite_tiempo = (datetime.now(timezone.utc) - timedelta(hours=solo_nuevas_horas)).isoformat()
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
@@ -334,9 +345,13 @@ class DatabaseManager:
                        url, fuente, clasificacion, estado, requisitos_cumple,
                        requisitos_verificar, motivo, fecha_publicacion, fecha_procesada
                 FROM ofertas
-                WHERE clasificacion IN ('A', 'B')
-                ORDER BY clasificacion ASC, fecha_procesada DESC
-            """)
+                WHERE (clasificacion IN ('A', 'B') AND estado = 'NUEVA' AND fecha_procesada >= ?)
+                   OR (estado IN ('INTERESANTE', 'SOLICITADA'))
+                ORDER BY 
+                    CASE WHEN estado = 'INTERESANTE' THEN 1 ELSE 2 END,
+                    clasificacion ASC, 
+                    fecha_procesada DESC
+            """, (limite_tiempo,))
             filas = cursor.fetchall()
             datos = []
             for f in filas:
@@ -347,7 +362,7 @@ class DatabaseManager:
             
             with open(output_path, "w", encoding="utf-8") as f:
                 json.dump(datos, f, ensure_ascii=False, indent=2)
-            logger.info("Exportado archivo JSON con %d ofertas en %s", len(datos), output_path)
+            logger.info("Exportado archivo JSON con %d ofertas en %s (nuevas de últimas %dh e interesantes)", len(datos), output_path, solo_nuevas_horas)
 
     def reclasificar_bd(self, matcher: 'ProfileMatcher') -> int:
         """Re-evalúa todas las ofertas de la BD con el matcher actual (filtro idioma español + restricciones)."""
@@ -1595,10 +1610,10 @@ class JobAgent:
         logger.info("=== INICIANDO AGENTE DE BÚSQUEDA DE EMPLEO ===")
         ahora_str = datetime.now(timezone.utc).strftime("%d/%m/%Y %H:%M UTC")
 
-        # 0. Purga automática de ofertas de días anteriores (preservando siempre 'INTERESANTE' y 'SOLICITADA')
-        eliminadas = self.db.purgar_ofertas_anteriores(conservar_interesantes=True)
+        # 0. Mantenimiento: Purga únicamente de ofertas con más de 60 días (preserva las de días/semanas anteriores para que no se repitan)
+        eliminadas = self.db.purgar_ofertas_antiguas(dias=60, conservar_interesantes=True)
         if eliminadas > 0:
-            logger.info("Purga diaria: %d ofertas de días anteriores no interesantes eliminadas.", eliminadas)
+            logger.info("Mantenimiento: %d ofertas de más de 60 días no interesantes eliminadas.", eliminadas)
 
         # 1. Asegurar coherencia histórica de la base de datos con los filtros actuales
         self.db.reclasificar_bd(self.matcher)
@@ -1621,7 +1636,7 @@ class JobAgent:
         for raw_job in todas_ofertas:
             job_id = raw_job["id"]
             
-            # Comprobar si ya existe en la base de datos
+            # Comprobar si ya existe en la base de datos (incluso si fue vista hace días o semanas)
             if self.db.existe_oferta(job_id):
                 continue
 
@@ -1643,8 +1658,8 @@ class JobAgent:
 
         logger.info("Nuevas ofertas insertadas en BD: %d. Relevantes (A/B): %d.", nuevas_procesadas, len(ofertas_notificar))
 
-        # 3. Exportar inmediatamente JSON de ofertas sincronizado para Cloudflare Worker
-        self.db.exportar_json()
+        # 3. Exportar inmediatamente JSON de ofertas sincronizado para Cloudflare Worker (solo nuevas de últimas 48h + favoritas)
+        self.db.exportar_json(solo_nuevas_horas=48)
 
         # 4. Despacho a Telegram (Modo Interactivo con Paginación)
         if ofertas_notificar:

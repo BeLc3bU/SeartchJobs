@@ -271,51 +271,62 @@ class TestDatabaseAndDeduplication(unittest.TestCase):
             c.execute("INSERT OR REPLACE INTO metadata (clave, valor) VALUES ('ultima_purga', ?)", (hace_8_dias,))
             conn.commit()
 
-        # Guardamos una oferta de prueba
+        # Guardamos una oferta de prueba muy antigua (> 60 días)
+        from datetime import datetime, timezone, timedelta
+        antigua = (datetime.now(timezone.utc) - timedelta(days=65)).isoformat()
         h = generar_hash("EmpresaVieja", "PuestoViejo", "https://test.com/vieja")
         self.db.guardar_oferta({
             "id": h, "puesto": "Viejo", "empresa": "EmpresaVieja", "url": "https://test.com/vieja",
-            "clasificacion": "A"
+            "clasificacion": "A", "fecha_procesada": antigua
         })
         self.assertTrue(self.db.existe_oferta(h))
 
-        # Al llamar de nuevo, debe detectar que han pasado > 7 días y purgar
+        # Al llamar de nuevo, debe detectar que han pasado > 7 días y purgar ofertas > 60 días
         purgado = self.db.purgar_semanal_si_procede(dias=7)
         self.assertTrue(purgado)
         self.assertFalse(self.db.existe_oferta(h))
 
     def test_purgar_ofertas_anteriores_conserva_interesantes(self):
         from datetime import datetime, timezone, timedelta
+        antigua = (datetime.now(timezone.utc) - timedelta(days=65)).isoformat()
         ayer = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
         hoy = datetime.now(timezone.utc).isoformat()
 
-        # 1. Oferta de ayer no interesante (debe ser purgada)
+        # 1. Oferta de más de 60 días no interesante (debe ser purgada)
+        h_antigua = generar_hash("EmpresaAntigua", "PuestoAntiguo", "https://test.com/antigua")
+        self.db.guardar_oferta({
+            "id": h_antigua, "puesto": "Puesto Antiguo", "empresa": "EmpresaAntigua", "url": "https://test.com/antigua",
+            "clasificacion": "A", "estado": "NUEVA", "fecha_procesada": antigua
+        })
+
+        # 2. Oferta de ayer (DEBE CONSERVARSE PARA EVITAR DUPLICADOS AL DÍA SIGUIENTE)
         h_ayer = generar_hash("EmpresaAyer", "PuestoAyer", "https://test.com/ayer")
         self.db.guardar_oferta({
             "id": h_ayer, "puesto": "Puesto Ayer", "empresa": "EmpresaAyer", "url": "https://test.com/ayer",
             "clasificacion": "A", "estado": "NUEVA", "fecha_procesada": ayer
         })
 
-        # 2. Oferta de ayer marcada como INTERESANTE (DEBE CONSERVARSE)
+        # 3. Oferta de hace 65 días marcada como INTERESANTE (DEBE CONSERVARSE SIEMPRE)
         h_interesante = generar_hash("EmpresaFav", "PuestoFav", "https://test.com/fav")
         self.db.guardar_oferta({
             "id": h_interesante, "puesto": "Puesto Favorito", "empresa": "EmpresaFav", "url": "https://test.com/fav",
-            "clasificacion": "A", "estado": "INTERESANTE", "fecha_procesada": ayer
+            "clasificacion": "A", "estado": "INTERESANTE", "fecha_procesada": antigua
         })
 
-        # 3. Oferta de hoy (DEBE CONSERVARSE)
+        # 4. Oferta de hoy (DEBE CONSERVARSE)
         h_hoy = generar_hash("EmpresaHoy", "PuestoHoy", "https://test.com/hoy")
         self.db.guardar_oferta({
             "id": h_hoy, "puesto": "Puesto Hoy", "empresa": "EmpresaHoy", "url": "https://test.com/hoy",
             "clasificacion": "A", "estado": "NUEVA", "fecha_procesada": hoy
         })
 
-        # Ejecutar purga de días anteriores
-        eliminadas = self.db.purgar_ofertas_anteriores(conservar_interesantes=True)
+        # Ejecutar purga de ofertas antiguas
+        eliminadas = self.db.purgar_ofertas_antiguas(dias=60, conservar_interesantes=True)
         self.assertEqual(eliminadas, 1)
 
-        # Verificar estados
-        self.assertFalse(self.db.existe_oferta(h_ayer))
+        # Verificar estados: la de ayer se conserva en BD para no repetirse
+        self.assertFalse(self.db.existe_oferta(h_antigua))
+        self.assertTrue(self.db.existe_oferta(h_ayer))
         self.assertTrue(self.db.existe_oferta(h_interesante))
         self.assertTrue(self.db.existe_oferta(h_hoy))
 
