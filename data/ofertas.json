@@ -1,5 +1,25 @@
 [
   {
+    "id": "f0a5c0759cf6",
+    "puesto": "Técnico microinformático/a. FIN DE SEMANA + 4 HORAS TELETRABAJO 100% (20 HORAS)",
+    "empresa": "IRIUM SOLUCIONES Y SISTEMAS",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "Jornada parcial - mañana",
+    "salario": "No especificado",
+    "url": "https://www.infojobs.net/madrid/tecnico-microinformatico-a.-fin-semana-4-horas-teletrabajo-100-20-horas/of-icc2077356c411b974ebdfa804c83d3?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
+    "fuente": "InfoJobs",
+    "clasificacion": "A",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Aviónica, hardware y sistemas críticos: hardware"
+    ],
+    "requisitos_verificar": [],
+    "motivo": "Teletrabajo 100% compatible. Horario: Fin de semana + Tiempo parcial / media jornada. Oportunidad sólida en Aviónica / Electrónica / Simulación donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "2026-09-28T10:20:41Z",
+    "fecha_procesada": "2026-09-28T14:02:59.034237+00:00"
+  },
+  {
     "id": "c8ee36a5fa44",
     "puesto": "DOCENTE ORGANIZACIÓN DEL ALMACEN (COML0045)",
     "empresa": "Grupo Ioe",
@@ -78,6 +98,29 @@
     "motivo": "Posición local en Hellín/Albacete. Horario: Fin de semana + Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "2026-09-14T08:17:13Z",
     "fecha_procesada": "2026-09-27T12:08:14.206600+00:00"
+  },
+  {
+    "id": "6d3d251a18f0",
+    "puesto": "Responsable captación F2F para ONG - OSOIGO",
+    "empresa": "Osoigo",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "No especificado",
+    "url": "https://jobtoday.com/es/trabajo/escb13371acaeab014390eebdc37a42180d8f61edb9cbf274ffe1a3af82a2d3bd0",
+    "fuente": "Job Today",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Administración de sistemas y redes: redes",
+      "Gestión administrativa, contable y documental: excel"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad + Sistemas / Redes / ASIR donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "1790276400000",
+    "fecha_procesada": "2026-09-28T14:02:59.089386+00:00"
   },
   {
     "id": "d6a08719c641",
@@ -166,7 +209,7 @@
       "Verificar nivel de inglés requerido (B2/C1) para operativa diaria",
       "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
     ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR + Desarrollo / Automatización donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Desarrollo / Automatización + Sistemas / Redes / ASIR donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "Fri, 25 Sep 2026 12:20:09 +0000",
     "fecha_procesada": "2026-09-27T12:08:13.818150+00:00"
   }
