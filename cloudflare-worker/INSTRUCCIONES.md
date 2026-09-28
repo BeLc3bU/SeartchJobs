@@ -46,7 +46,7 @@ Con este Webhook, tu bot de Telegram **@UbedaBot** responderá al instante las 2
 2. Abre una pestaña en tu navegador y visita esta dirección (sustituyendo `<TU_URL_DE_WORKER>` por la tuya):
 
 ```text
-https://api.telegram.org/bot8841287760:AAGiXoRBUqaKyG70db5T84AtGcMxOJ08pT4/setWebhook?url=<TU_URL_DE_WORKER>
+https://api.telegram.org/bot8841287760:AAGiXoRBUqaKyG70db5T84AtGcMxOJ08pT4/setWebhook?url=<TU_URL_DE_WORKER>&allowed_updates=["message","callback_query"]
 ```
 
 Telegram te responderá en el navegador con:

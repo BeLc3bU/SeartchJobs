@@ -1414,6 +1414,49 @@ class TelegramDispatcher:
         if mensaje_actual.strip():
             self.enviar_mensaje(mensaje_actual.strip())
 
+    def editar_mensaje(self, message_id: int, texto_html: str, inline_keyboard: Optional[List[List[Dict[str, str]]]] = None) -> bool:
+        """Edita un mensaje existente en Telegram de forma interactiva."""
+        if not self.esta_configurado():
+            return False
+        url = f"https://api.telegram.org/bot{self.token}/editMessageText"
+        payload = {
+            "chat_id": self.chat_id,
+            "message_id": message_id,
+            "text": texto_html,
+            "parse_mode": "HTML",
+            "disable_web_page_preview": False
+        }
+        if inline_keyboard:
+            payload["reply_markup"] = {"inline_keyboard": inline_keyboard}
+
+        try:
+            resp = requests.post(url, json=payload, timeout=15)
+            if resp.status_code == 200:
+                return True
+            else:
+                logger.error("Error al editar mensaje en Telegram (%d): %s", resp.status_code, resp.text)
+                return False
+        except Exception as e:
+            logger.error("Excepción al editar mensaje en Telegram: %s", e)
+            return False
+
+    def responder_callback(self, query_id: str, texto: Optional[str] = None, alert: bool = False) -> bool:
+        """Confirma a Telegram la recepción de una pulsación de botón callback."""
+        if not self.esta_configurado():
+            return False
+        url = f"https://api.telegram.org/bot{self.token}/answerCallbackQuery"
+        payload = {"callback_query_id": query_id}
+        if texto:
+            payload["text"] = texto
+            payload["show_alert"] = alert
+
+        try:
+            resp = requests.post(url, json=payload, timeout=10)
+            return resp.status_code == 200
+        except Exception as e:
+            logger.error("Excepción al responder callback query: %s", e)
+            return False
+
     def formatear_oferta_html(self, oferta: Dict[str, Any]) -> str:
         """Formatea una vacante individual con la estructura exigida."""
         clase = oferta.get("clasificacion", "A")
