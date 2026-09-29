@@ -20,84 +20,51 @@
     "fecha_procesada": "2026-09-28T14:02:59.034237+00:00"
   },
   {
-    "id": "c8ee36a5fa44",
-    "puesto": "DOCENTE ORGANIZACIÓN DEL ALMACEN (COML0045)",
-    "empresa": "Grupo Ioe",
-    "ubicacion": "Madrid",
-    "modalidad": "REMOTO",
-    "horario": "Jornada indiferente",
-    "salario": "No especificado",
-    "url": "https://www.infojobs.net/madrid/docente-organizacion-del-almacen-coml0045/of-ib2998dbf594310b45eb2ddb153b2cb?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
-    "fuente": "InfoJobs",
-    "clasificacion": "A",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Gestión de material, almacén y control de calidad: almacen, logistica"
-    ],
-    "requisitos_verificar": [],
-    "motivo": "Teletrabajo 100% compatible. Horario: Turno de tarde. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "2026-09-24T10:21:22Z",
-    "fecha_procesada": "2026-09-27T12:08:14.299281+00:00"
-  },
-  {
-    "id": "012e7f544a23",
-    "puesto": "Auxiliar Administrativo/a de Trabajo Temporal para Barcelona",
-    "empresa": "TEMPORAL QUALITY",
-    "ubicacion": "Barcelona",
-    "modalidad": "REMOTO",
-    "horario": "Jornada parcial - tarde",
-    "salario": "No especificado",
-    "url": "https://www.infojobs.net/barcelona/auxiliar-administrativo-trabajo-temporal-para-barcelona/of-i661a5eeaa3472fb59821a1b6813055?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
-    "fuente": "InfoJobs",
-    "clasificacion": "A",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Gestión administrativa, contable y documental: administrativo, administrativa, administración, gestión documental"
-    ],
-    "requisitos_verificar": [],
-    "motivo": "Teletrabajo 100% compatible. Horario: Turno de tarde + Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "2026-09-04T10:29:04Z",
-    "fecha_procesada": "2026-09-27T12:08:14.263042+00:00"
-  },
-  {
-    "id": "6ed2c94bd321",
-    "puesto": "MOZO DE ALMACEN - MEDIA JORNADA (H/M/X)",
-    "empresa": "Manpower",
+    "id": "b785d10e8a8b",
+    "puesto": "MOZO/A JORNADA PARCIAL 15H SEMANALES ALBACETE",
+    "empresa": "SEUR",
     "ubicacion": "Albacete",
     "modalidad": "PRESENCIAL",
     "horario": "Jornada parcial - indiferente",
     "salario": "No especificado",
-    "url": "https://www.infojobs.net/albacete/mozo-almacen-media-jornada-h-m-x/of-i7f50e32b5f4972b90f460fa7a66ca0?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
+    "url": "https://www.infojobs.net/albacete/mozo-jornada-parcial-15h-semanales-albacete/of-ib83eb5199b468cb6c56d47dcf358df?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
     "fuente": "InfoJobs",
-    "clasificacion": "A",
+    "clasificacion": "B",
     "estado": "NUEVA",
     "requisitos_cumple": [
-      "Gestión de material, almacén y control de calidad: almacen, almacén, logística, stock"
+      "Gestión de material, almacén y control de calidad: logística"
     ],
-    "requisitos_verificar": [],
-    "motivo": "Posición local en Hellín/Albacete. Horario: Turno de tarde + Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "2026-09-10T11:52:30Z",
-    "fecha_procesada": "2026-09-27T12:08:14.214933+00:00"
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Posición local en Hellín/Albacete. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "2026-09-23T11:33:05Z",
+    "fecha_procesada": "2026-09-29T12:59:07.279564+00:00"
   },
   {
-    "id": "200ae2ace383",
-    "puesto": "PREPARADOR/A DE PEDIDOS MOZO/A DE ALMACEN EN CHINCHILLA (ALBACETE)",
-    "empresa": "ATE SISTEMAS Y PROYECTOS SINGULARES SL",
-    "ubicacion": "Chinchilla de Monte-Aragón",
-    "modalidad": "PRESENCIAL",
-    "horario": "Jornada parcial - indiferente",
-    "salario": "No especificado",
-    "url": "https://www.infojobs.net/chinchilla-de-monte-aragon/preparador-pedidos-mozo-almacen-chinchilla-albacete/of-i68c0c7dcc540cb827eca49572a78d5?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
-    "fuente": "InfoJobs",
-    "clasificacion": "A",
+    "id": "6abe16fbe417",
+    "puesto": "Técnico N2 Office 365, azure, intune",
+    "empresa": "Econocom",
+    "ubicacion": "hibrido",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "Sin especificar",
+    "url": "https://www.tecnoempleo.com/tecnico-n2-office-365-azure-intune/microsoft-365-exchange/rf-7b401760a28013791644",
+    "fuente": "Tecnoempleo",
+    "clasificacion": "B",
     "estado": "NUEVA",
     "requisitos_cumple": [
-      "Gestión de material, almacén y control de calidad: almacen, inventario"
+      "Administración de sistemas y redes: active directory, soporte técnico",
+      "Automatización y scripting: powershell, automatización",
+      "Gestión administrativa, contable y documental: administración, backoffice"
     ],
-    "requisitos_verificar": [],
-    "motivo": "Posición local en Hellín/Albacete. Horario: Fin de semana + Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "2026-09-14T08:17:13Z",
-    "fecha_procesada": "2026-09-27T12:08:14.206600+00:00"
+    "requisitos_verificar": [
+      "Verificar certificación específica Microsoft Azure",
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR + Desarrollo / Automatización + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Tue, 29 Sep 2026 07:09:32 +0000",
+    "fecha_procesada": "2026-09-29T12:59:07.216087+00:00"
   },
   {
     "id": "6d3d251a18f0",
@@ -118,99 +85,8 @@
     "requisitos_verificar": [
       "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
     ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad + Sistemas / Redes / ASIR donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "1790276400000",
     "fecha_procesada": "2026-09-28T14:02:59.089386+00:00"
-  },
-  {
-    "id": "d6a08719c641",
-    "puesto": "Soporte Técnico",
-    "empresa": "Tilo Motion",
-    "ubicacion": "Madrid",
-    "modalidad": "REMOTO",
-    "horario": "No especificado",
-    "salario": "No especificado",
-    "url": "https://jobtoday.com/es/trabajo/es2e4a9eb43a4cdce0b82422f7a7a68f490abe27bf1ff2cd19e0577f2204cdc590",
-    "fuente": "Job Today",
-    "clasificacion": "B",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Administración de sistemas y redes: soporte técnico, soporte a usuarios"
-    ],
-    "requisitos_verificar": [
-      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
-    ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "1790380800000",
-    "fecha_procesada": "2026-09-27T12:08:14.568175+00:00"
-  },
-  {
-    "id": "fa4d2be73c93",
-    "puesto": "Administrativo /a laboral - A3 NOM Profesional",
-    "empresa": "Temps Jobs finders",
-    "ubicacion": "Madrid",
-    "modalidad": "REMOTO",
-    "horario": "Tiempo parcial",
-    "salario": "1.600 - 1.700 € / mes",
-    "url": "https://jobtoday.com/es/trabajo/administrativo-a-laboral-a3-nom-profesional-o4ZZGM",
-    "fuente": "Job Today",
-    "clasificacion": "B",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Gestión administrativa, contable y documental: administrativo"
-    ],
-    "requisitos_verificar": [
-      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
-    ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "1785941129662",
-    "fecha_procesada": "2026-09-27T12:08:14.507634+00:00"
-  },
-  {
-    "id": "fc4467fd90db",
-    "puesto": "Ingeniero/a Proyectos Nucleares",
-    "empresa": "HAYS",
-    "ubicacion": "hibrido",
-    "modalidad": "REMOTO",
-    "horario": "No especificado",
-    "salario": "Sin especificar",
-    "url": "https://www.tecnoempleo.com/ingeniero-proyectos-nucleares-hays/pipe-stress-analysis-fem/rf-cf391ac4b2a9e3d4814b",
-    "fuente": "Tecnoempleo",
-    "clasificacion": "B",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Administración de sistemas y redes: soporte técnico"
-    ],
-    "requisitos_verificar": [
-      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
-    ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "Fri, 18 Sep 2026 07:56:49 +0000",
-    "fecha_procesada": "2026-09-27T12:08:14.158105+00:00"
-  },
-  {
-    "id": "082a836e28d4",
-    "puesto": "Técnico/a informático/a L2 senior, inglés alto",
-    "empresa": "Sosmatic",
-    "ubicacion": "presencial",
-    "modalidad": "REMOTO",
-    "horario": "No especificado",
-    "salario": "27000 € - 27000 €  Bruto/año",
-    "url": "https://www.tecnoempleo.com/tecnico-informatico-l2-senior-ingles-alto-sosmatic/m365-servicenow/rf-fbfc174612da23f93449",
-    "fuente": "Tecnoempleo",
-    "clasificacion": "B",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Administración de sistemas y redes: soporte técnico, helpdesk",
-      "Automatización y scripting: scripting"
-    ],
-    "requisitos_verificar": [
-      "Verificar certificación en marco ITIL",
-      "Verificar nivel de inglés requerido (B2/C1) para operativa diaria",
-      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
-    ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Desarrollo / Automatización + Sistemas / Redes / ASIR donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "Fri, 25 Sep 2026 12:20:09 +0000",
-    "fecha_procesada": "2026-09-27T12:08:13.818150+00:00"
   }
 ]
