@@ -20,6 +20,53 @@
     "fecha_procesada": "2026-10-01T13:25:19.754701+00:00"
   },
   {
+    "id": "357706f661a7",
+    "puesto": "Development Accounting Manager",
+    "empresa": "Soltec",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "No especificado",
+    "url": "https://jobtoday.com/es/trabajo/es5219a9864e77addc419f58a0a74397c4f90d8b39707f986edba08bb433e288a0",
+    "fuente": "Job Today",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión de material, almacén y control de calidad: iso 9001",
+      "Gestión administrativa, contable y documental: administración, contable, contabilidad, erp"
+    ],
+    "requisitos_verificar": [
+      "Verificar nivel de inglés formal C1",
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "1788272802000",
+    "fecha_procesada": "2026-10-03T11:44:18.896218+00:00"
+  },
+  {
+    "id": "62263addc3a5",
+    "puesto": "Desarrollador/a Fullstack PHP/JS",
+    "empresa": "knowmad Mood",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "No especificado",
+    "url": "https://jobtoday.com/es/trabajo/esa39d609b4b27b84b7b283913441ebddd7f73d227e19b019e696c2471343a6273",
+    "fuente": "Job Today",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Automatización y scripting: automatización, sql, javascript, typescript",
+      "Gestión administrativa, contable y documental: erp"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Desarrollo / Automatización + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "1786982960000",
+    "fecha_procesada": "2026-10-03T11:44:18.862485+00:00"
+  },
+  {
     "id": "9d3d823683c8",
     "puesto": "DOCENTE FP EMERGENCIAS SANITARIAS",
     "empresa": "GALA Autoescuela",
