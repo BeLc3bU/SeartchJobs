@@ -1,23 +1,28 @@
 [
   {
-    "id": "3bd792d386bd",
-    "puesto": "Técnico de ofertas eléctricos",
-    "empresa": "Page Personnel",
+    "id": "fdbc1c79043c",
+    "puesto": "Senior Software Developer (.NET) - AI Powered Development",
+    "empresa": "KRUK España",
     "ubicacion": "Madrid",
     "modalidad": "REMOTO",
     "horario": "No especificado",
     "salario": "No especificado",
-    "url": "https://jobtoday.com/es/trabajo/esd97b77d177e321ddc8dad8f7dd14af2ae561004f9f787200639b9102792b4481",
+    "url": "https://jobtoday.com/es/trabajo/es79311ee8f84e11af63cf8030d6fc7abeaeab0df2ce8df2cf84254fa90d993394",
     "fuente": "Job Today",
-    "clasificacion": "A",
+    "clasificacion": "B",
     "estado": "NUEVA",
     "requisitos_cumple": [
-      "Gestión administrativa, contable y documental: excel"
+      "Administración de sistemas y redes: soporte técnico",
+      "Automatización y scripting: sql, ci/cd"
     ],
-    "requisitos_verificar": [],
-    "motivo": "Teletrabajo 100% compatible. Horario: Fin de semana + Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "1790845684000",
-    "fecha_procesada": "2026-10-01T13:25:19.754701+00:00"
+    "requisitos_verificar": [
+      "Verificar certificación específica Microsoft Azure",
+      "Verificar nivel de inglés formal B2",
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR + Desarrollo / Automatización donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "1790237001000",
+    "fecha_procesada": "2026-10-04T12:27:13.247405+00:00"
   },
   {
     "id": "357706f661a7",
@@ -62,7 +67,7 @@
     "requisitos_verificar": [
       "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
     ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Desarrollo / Automatización + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad + Desarrollo / Automatización donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "1786982960000",
     "fecha_procesada": "2026-10-03T11:44:18.862485+00:00"
   },
