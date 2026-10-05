@@ -1,5 +1,49 @@
 [
   {
+    "id": "74e30d5d1c59",
+    "puesto": "Helpdesk N1 – Gallego e Inglés (remoto, jornada parcial)",
+    "empresa": "SOSmatic",
+    "ubicacion": "A Coruña",
+    "modalidad": "REMOTO",
+    "horario": "Jornada indiferente",
+    "salario": "No especificado",
+    "url": "https://www.infojobs.net/a-coruna/helpdesk-n1-gallego-ingles-remoto-jornada-parcial/of-i98876eec444e43b53751448e54f835?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
+    "fuente": "InfoJobs",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Administración de sistemas y redes: redes, lan, wan, tcp/ip"
+    ],
+    "requisitos_verificar": [
+      "Verificar nivel de inglés formal B2"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Turno de tarde + Fin de semana + Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "2026-10-05T09:16:35Z",
+    "fecha_procesada": "2026-10-05T14:48:03.331974+00:00"
+  },
+  {
+    "id": "188a812ffa63",
+    "puesto": "Encargado/a restaurante - Jornada Parcial 20-25h/semana - XPECADO Albacete",
+    "empresa": "XPECADO SMASH BURGUER",
+    "ubicacion": "Albacete",
+    "modalidad": "PRESENCIAL",
+    "horario": "Jornada parcial - indiferente",
+    "salario": "No especificado",
+    "url": "https://www.infojobs.net/albacete/encargado-restaurante-jornada-parcial-20-25h-semana-xpecado-albacete/of-idd64de09eb4cdbb69ab3b7fc057188?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
+    "fuente": "InfoJobs",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión de material, almacén y control de calidad: stock"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Posición local en Hellín/Albacete. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "2026-10-05T11:06:27Z",
+    "fecha_procesada": "2026-10-05T14:48:03.323978+00:00"
+  },
+  {
     "id": "fdbc1c79043c",
     "puesto": "Senior Software Developer (.NET) - AI Powered Development",
     "empresa": "KRUK España",
@@ -23,118 +67,5 @@
     "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR + Desarrollo / Automatización donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "1790237001000",
     "fecha_procesada": "2026-10-04T12:27:13.247405+00:00"
-  },
-  {
-    "id": "357706f661a7",
-    "puesto": "Development Accounting Manager",
-    "empresa": "Soltec",
-    "ubicacion": "Madrid",
-    "modalidad": "REMOTO",
-    "horario": "No especificado",
-    "salario": "No especificado",
-    "url": "https://jobtoday.com/es/trabajo/es5219a9864e77addc419f58a0a74397c4f90d8b39707f986edba08bb433e288a0",
-    "fuente": "Job Today",
-    "clasificacion": "B",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Gestión de material, almacén y control de calidad: iso 9001",
-      "Gestión administrativa, contable y documental: administración, contable, contabilidad, erp"
-    ],
-    "requisitos_verificar": [
-      "Verificar nivel de inglés formal C1",
-      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
-    ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "1788272802000",
-    "fecha_procesada": "2026-10-03T11:44:18.896218+00:00"
-  },
-  {
-    "id": "62263addc3a5",
-    "puesto": "Desarrollador/a Fullstack PHP/JS",
-    "empresa": "knowmad Mood",
-    "ubicacion": "Madrid",
-    "modalidad": "REMOTO",
-    "horario": "No especificado",
-    "salario": "No especificado",
-    "url": "https://jobtoday.com/es/trabajo/esa39d609b4b27b84b7b283913441ebddd7f73d227e19b019e696c2471343a6273",
-    "fuente": "Job Today",
-    "clasificacion": "B",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Automatización y scripting: automatización, sql, javascript, typescript",
-      "Gestión administrativa, contable y documental: erp"
-    ],
-    "requisitos_verificar": [
-      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
-    ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad + Desarrollo / Automatización donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "1786982960000",
-    "fecha_procesada": "2026-10-03T11:44:18.862485+00:00"
-  },
-  {
-    "id": "9d3d823683c8",
-    "puesto": "DOCENTE FP EMERGENCIAS SANITARIAS",
-    "empresa": "GALA Autoescuela",
-    "ubicacion": "Madrid",
-    "modalidad": "REMOTO",
-    "horario": "No especificado",
-    "salario": "45.000 - 45.000 USD / año",
-    "url": "https://jobtoday.com/es/trabajo/es0b44b1521ed90f12a42f7f9b182a5e39cbf043b7a2bec4ed2ec958256679a231",
-    "fuente": "Job Today",
-    "clasificacion": "B",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Gestión administrativa, contable y documental: administrativo, administrativa"
-    ],
-    "requisitos_verificar": [
-      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
-    ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "1790820000000",
-    "fecha_procesada": "2026-10-02T12:43:00.933236+00:00"
-  },
-  {
-    "id": "74a011909ed9",
-    "puesto": "Administrativo/a",
-    "empresa": "NORMAGAS",
-    "ubicacion": "Móstoles",
-    "modalidad": "REMOTO",
-    "horario": "Tiempo parcial",
-    "salario": "600 - 700 € / mes (Posible promociona jornada completa en pocos meses)",
-    "url": "https://jobtoday.com/es/trabajo/administrativo-a-8PEM6D",
-    "fuente": "Job Today",
-    "clasificacion": "B",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Gestión administrativa, contable y documental: administrativo, administrativa, excel"
-    ],
-    "requisitos_verificar": [
-      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
-    ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "1790920804843",
-    "fecha_procesada": "2026-10-02T12:43:00.867778+00:00"
-  },
-  {
-    "id": "32b3c6a44802",
-    "puesto": "Analista Programador/a SAP ABAP (REMOTO)",
-    "empresa": "CAS TRAINING",
-    "ubicacion": "100% En remoto",
-    "modalidad": "REMOTO",
-    "horario": "No especificado",
-    "salario": "24000 € - 27000 €  Bruto/año",
-    "url": "https://www.tecnoempleo.com/analista-programador-sap-abap-remoto-cas-training/odata-cds/rf-e5821e59f202535dd648",
-    "fuente": "Tecnoempleo",
-    "clasificacion": "B",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Gestión administrativa, contable y documental: sap"
-    ],
-    "requisitos_verificar": [
-      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
-    ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "Fri, 02 Oct 2026 11:02:47 +0000",
-    "fecha_procesada": "2026-10-02T12:43:00.668747+00:00"
   }
 ]
