@@ -1,5 +1,72 @@
 [
   {
+    "id": "e8ae2be358ff",
+    "puesto": "Sales Assistant Sprinter Albacenter",
+    "empresa": "SPRINTER MEGACENTROS DEL DEPORTE",
+    "ubicacion": "Albacete",
+    "modalidad": "PRESENCIAL",
+    "horario": "Jornada parcial - indiferente",
+    "salario": "No especificado",
+    "url": "https://www.infojobs.net/albacete/sales-assistant-sprinter-albacenter/of-i095dd81e8c4d9d8eb9459120ef3632?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
+    "fuente": "InfoJobs",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión de material, almacén y control de calidad: stock"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Posición local en Hellín/Albacete. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "2026-10-06T06:39:15Z",
+    "fecha_procesada": "2026-10-06T13:23:00.613245+00:00"
+  },
+  {
+    "id": "42d866b2a20e",
+    "puesto": "Consultor/a SAP VISTEX",
+    "empresa": "Serem",
+    "ubicacion": "100% En remoto",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "Sin especificar",
+    "url": "https://www.tecnoempleo.com/consultor-sap-vistex-serem/sd-s-4hana/rf-89b319e3f286c34b5947",
+    "fuente": "Tecnoempleo",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión administrativa, contable y documental: sap"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Tue, 06 Oct 2026 07:29:20 +0000",
+    "fecha_procesada": "2026-10-06T13:23:00.516603+00:00"
+  },
+  {
+    "id": "e6c9b986b7fb",
+    "puesto": "Analista Programador/a ABAP (7:30 15:30h)",
+    "empresa": "Grupo Digital",
+    "ubicacion": "100% En remoto",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "Sin especificar",
+    "url": "https://www.tecnoempleo.com/analista-programador-abap-7-30-15-30h-grupo-digita/sap-hana/rf-e12614d912f59311774a",
+    "fuente": "Tecnoempleo",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Administración de sistemas y redes: redes",
+      "Gestión administrativa, contable y documental: sap"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Tue, 06 Oct 2026 10:21:50 +0000",
+    "fecha_procesada": "2026-10-06T13:23:00.476791+00:00"
+  },
+  {
     "id": "74e30d5d1c59",
     "puesto": "Helpdesk N1 – Gallego e Inglés (remoto, jornada parcial)",
     "empresa": "SOSmatic",
@@ -42,30 +109,5 @@
     "motivo": "Posición local en Hellín/Albacete. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "2026-10-05T11:06:27Z",
     "fecha_procesada": "2026-10-05T14:48:03.323978+00:00"
-  },
-  {
-    "id": "fdbc1c79043c",
-    "puesto": "Senior Software Developer (.NET) - AI Powered Development",
-    "empresa": "KRUK España",
-    "ubicacion": "Madrid",
-    "modalidad": "REMOTO",
-    "horario": "No especificado",
-    "salario": "No especificado",
-    "url": "https://jobtoday.com/es/trabajo/es79311ee8f84e11af63cf8030d6fc7abeaeab0df2ce8df2cf84254fa90d993394",
-    "fuente": "Job Today",
-    "clasificacion": "B",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Administración de sistemas y redes: soporte técnico",
-      "Automatización y scripting: sql, ci/cd"
-    ],
-    "requisitos_verificar": [
-      "Verificar certificación específica Microsoft Azure",
-      "Verificar nivel de inglés formal B2",
-      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
-    ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR + Desarrollo / Automatización donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "1790237001000",
-    "fecha_procesada": "2026-10-04T12:27:13.247405+00:00"
   }
 ]
