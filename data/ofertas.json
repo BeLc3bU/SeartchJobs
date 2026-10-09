@@ -1,5 +1,74 @@
 [
   {
+    "id": "eb4da3867c49",
+    "puesto": "Infrastructure Engineer Cloud – AWS & JBOSS",
+    "empresa": "TECDATA ENGINEERING",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "No especificado",
+    "url": "https://jobtoday.com/es/trabajo/es4ce42fcd84ab738449218d5fb123d25070548f67cccd2576ec5d5b202ee1f735",
+    "fuente": "Job Today",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Automatización y scripting: automatización, ci/cd",
+      "Gestión administrativa, contable y documental: administración"
+    ],
+    "requisitos_verificar": [
+      "Verificar certificación específica AWS Cloud",
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Desarrollo / Automatización + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "1789885245000",
+    "fecha_procesada": "2026-10-09T13:23:19.489008+00:00"
+  },
+  {
+    "id": "572d35de7bc7",
+    "puesto": "Docente de Administración de Empresas",
+    "empresa": "Davante",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "Jornada parcial - indiferente",
+    "salario": "No especificado",
+    "url": "https://www.infojobs.net/madrid/docente-administracion-empresas/of-i3b12d9fafc497d8e131d52b5506970?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
+    "fuente": "InfoJobs",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión administrativa, contable y documental: administración"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "2026-08-10T09:32:37Z",
+    "fecha_procesada": "2026-10-09T13:23:19.339553+00:00"
+  },
+  {
+    "id": "0911be547617",
+    "puesto": "Ingeniero/a VoIP Teams y Genesys Cloud",
+    "empresa": "Serem",
+    "ubicacion": "100% En remoto",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "Sin especificar",
+    "url": "https://www.tecnoempleo.com/ingeniero-voip-teams-genesys-cloud-serem/sbcs/rf-6d5e1daf029d03a50042",
+    "fuente": "Tecnoempleo",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Administración de sistemas y redes: redes, routing, firewall",
+      "Gestión administrativa, contable y documental: administración, excel"
+    ],
+    "requisitos_verificar": [
+      "Verificar nivel de inglés formal C1"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Fin de semana. Oportunidad sólida en Sistemas / Redes / ASIR + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Thu, 08 Oct 2026 17:41:54 +0000",
+    "fecha_procesada": "2026-10-09T13:23:19.299547+00:00"
+  },
+  {
     "id": "cd5cb1d62fab",
     "puesto": "Senior Tax & Accountant",
     "empresa": "IXEN",
