@@ -1,1 +1,47 @@
-[]
+[
+  {
+    "id": "ef4c3e54d997",
+    "puesto": "Coordinador/a de Proyectos IT (Certificación PM)",
+    "empresa": "Serem",
+    "ubicacion": "100% En remoto",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "Sin especificar",
+    "url": "https://www.tecnoempleo.com/coordinador-proyectos-it-certificacion-pm-serem/agile-scrum/rf-e2621928a2e0f3fe6344",
+    "fuente": "Tecnoempleo",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión administrativa, contable y documental: administración"
+    ],
+    "requisitos_verificar": [
+      "Verificar certificación en marco ITIL",
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Mon, 12 Oct 2026 11:55:07 +0000",
+    "fecha_procesada": "2026-10-13T14:17:40.804332+00:00"
+  },
+  {
+    "id": "bed2cd1ab91b",
+    "puesto": "Programador/a Navision",
+    "empresa": "Michael Page",
+    "ubicacion": "presencial",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "Sin especificar",
+    "url": "https://www.tecnoempleo.com/programador-navision-michael-page/navision/rf-62071987f2d7a3955f4f",
+    "fuente": "Tecnoempleo",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión administrativa, contable y documental: erp"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Tue, 13 Oct 2026 09:30:33 +0000",
+    "fecha_procesada": "2026-10-13T14:17:40.744109+00:00"
+  }
+]
