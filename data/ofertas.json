@@ -1,5 +1,50 @@
 [
   {
+    "id": "9fbd8883e6c2",
+    "puesto": "Mobile Solutions Architect",
+    "empresa": "Serem",
+    "ubicacion": "100% En remoto",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "Sin especificar",
+    "url": "https://www.tecnoempleo.com/mobile-solutions-architect-serem/ci-cd-mobile-ci-cd/rf-e366170e92ffe303fb47",
+    "fuente": "Tecnoempleo",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Automatización y scripting: ci/cd"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Desarrollo / Automatización donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Wed, 14 Oct 2026 14:02:26 +0000",
+    "fecha_procesada": "2026-10-15T11:36:03.539936+00:00"
+  },
+  {
+    "id": "5b33ce7309dc",
+    "puesto": "Desarrollador/a Dynamics AX 2012 R3",
+    "empresa": "HAYS",
+    "ubicacion": "100% En remoto",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "Sin especificar",
+    "url": "https://www.tecnoempleo.com/desarrollador-dynamics-ax-2012-r3-hays/dynamics-ax-sap/rf-29071945d2dc03d94c49",
+    "fuente": "Tecnoempleo",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Administración de sistemas y redes: soporte a usuarios",
+      "Gestión administrativa, contable y documental: erp, sap"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Thu, 15 Oct 2026 07:36:30 +0000",
+    "fecha_procesada": "2026-10-15T11:36:03.475427+00:00"
+  },
+  {
     "id": "ef4c3e54d997",
     "puesto": "Coordinador/a de Proyectos IT (Certificación PM)",
     "empresa": "Serem",
