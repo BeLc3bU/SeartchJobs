@@ -1,5 +1,50 @@
 [
   {
+    "id": "4bd3d1e39dc8",
+    "puesto": "SALES MANAGER",
+    "empresa": "RAS Recruiting",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "No especificado",
+    "url": "https://jobtoday.com/es/trabajo/escb3b126970957792b10b45b2439eb4219d4f1b7a665c2808c24e9c4ce7c575ba",
+    "fuente": "Job Today",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión de material, almacén y control de calidad: almacén, logística"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "1792063222000",
+    "fecha_procesada": "2026-10-16T11:30:37.015293+00:00"
+  },
+  {
+    "id": "7f4d41789f43",
+    "puesto": "GESTOR TÉCNICO ECONÓMICO",
+    "empresa": "Quest Global",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "No especificado",
+    "url": "https://jobtoday.com/es/trabajo/es249d44f3d5e98b574d4ce151c34865ff5268e75234d5d80f6b341d92e4b7ba49",
+    "fuente": "Job Today",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Aviónica, hardware y sistemas críticos: defensa",
+      "Gestión de material, almacén y control de calidad: logística, iso 9001"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos + Aviónica / Electrónica / Simulación donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "1792063061000",
+    "fecha_procesada": "2026-10-16T11:30:36.980902+00:00"
+  },
+  {
     "id": "9fbd8883e6c2",
     "puesto": "Mobile Solutions Architect",
     "empresa": "Serem",
@@ -43,50 +88,5 @@
     "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "Thu, 15 Oct 2026 07:36:30 +0000",
     "fecha_procesada": "2026-10-15T11:36:03.475427+00:00"
-  },
-  {
-    "id": "ef4c3e54d997",
-    "puesto": "Coordinador/a de Proyectos IT (Certificación PM)",
-    "empresa": "Serem",
-    "ubicacion": "100% En remoto",
-    "modalidad": "REMOTO",
-    "horario": "No especificado",
-    "salario": "Sin especificar",
-    "url": "https://www.tecnoempleo.com/coordinador-proyectos-it-certificacion-pm-serem/agile-scrum/rf-e2621928a2e0f3fe6344",
-    "fuente": "Tecnoempleo",
-    "clasificacion": "B",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Gestión administrativa, contable y documental: administración"
-    ],
-    "requisitos_verificar": [
-      "Verificar certificación en marco ITIL",
-      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
-    ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "Mon, 12 Oct 2026 11:55:07 +0000",
-    "fecha_procesada": "2026-10-13T14:17:40.804332+00:00"
-  },
-  {
-    "id": "bed2cd1ab91b",
-    "puesto": "Programador/a Navision",
-    "empresa": "Michael Page",
-    "ubicacion": "presencial",
-    "modalidad": "REMOTO",
-    "horario": "No especificado",
-    "salario": "Sin especificar",
-    "url": "https://www.tecnoempleo.com/programador-navision-michael-page/navision/rf-62071987f2d7a3955f4f",
-    "fuente": "Tecnoempleo",
-    "clasificacion": "B",
-    "estado": "NUEVA",
-    "requisitos_cumple": [
-      "Gestión administrativa, contable y documental: erp"
-    ],
-    "requisitos_verificar": [
-      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
-    ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "Tue, 13 Oct 2026 09:30:33 +0000",
-    "fecha_procesada": "2026-10-13T14:17:40.744109+00:00"
   }
 ]
