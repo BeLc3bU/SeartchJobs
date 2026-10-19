@@ -1,9 +1,15 @@
 """
-gestionar.py - Herramienta de línea de comandos (CLI) para gestionar el estado de las ofertas de empleo.
+gestionar.py - Herramienta de línea de comandos (CLI) para gestionar el estado de las ofertas de empleo
+y ejecutar acciones del framework de postulación inteligente.
 Uso:
   python src/gestionar.py <hash_o_prefijo> <ESTADO>
   python src/gestionar.py --list [ESTADO]
   python src/gestionar.py --info <hash_o_prefijo>
+  python src/gestionar.py --apply <hash_o_prefijo>
+  python src/gestionar.py --interview <hash_o_prefijo>
+  python src/gestionar.py --report
+  python src/gestionar.py --upskill
+  python src/gestionar.py --purgar
 """
 
 import os
@@ -20,10 +26,13 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "empleo.db")
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if REPO_ROOT not in sys.path:
+    sys.path.insert(0, REPO_ROOT)
+
+DB_PATH = os.path.join(REPO_ROOT, "data", "empleo.db")
 
 ESTADOS_VALIDOS = ["NUEVA", "INTERESANTE", "SOLICITADA", "DESCARTADA"]
-
 
 @contextmanager
 def get_connection():
@@ -37,8 +46,6 @@ def get_connection():
     finally:
         conn.close()
 
-
-
 def actualizar_estado(hash_prefix: str, nuevo_estado: str):
     nuevo_estado = nuevo_estado.upper().strip()
     if nuevo_estado not in ESTADOS_VALIDOS:
@@ -47,7 +54,6 @@ def actualizar_estado(hash_prefix: str, nuevo_estado: str):
 
     with get_connection() as conn:
         cursor = conn.cursor()
-        # Buscar por prefijo de hash
         cursor.execute("SELECT id, puesto, empresa, estado, clasificacion FROM ofertas WHERE id LIKE ?", (f"{hash_prefix}%",))
         filas = cursor.fetchall()
 
@@ -70,7 +76,6 @@ def actualizar_estado(hash_prefix: str, nuevo_estado: str):
         print(f"   Puesto:   {oferta['puesto']}")
         print(f"   Empresa:  {oferta['empresa']}")
         print(f"   Estado:   {oferta['estado']} ➔ {nuevo_estado}")
-
 
 def listar_ofertas(filtro_estado: Optional[str] = None):
     with get_connection() as conn:
@@ -108,7 +113,6 @@ def listar_ofertas(filtro_estado: Optional[str] = None):
                 mod = mod[:15] + "..."
             print(f"{f['id'][:12]:<14} | {f['clasificacion']:<5} | {f['estado']:<12} | {mod:<18} | {puesto_empresa}")
         print()
-
 
 def mostrar_info(hash_prefix: str):
     with get_connection() as conn:
@@ -160,6 +164,56 @@ def mostrar_info(hash_prefix: str):
         print(f"\n💡 Motivo de interés:")
         print(f"   {of.get('motivo', 'N/A')}\n")
 
+def ejecutar_apply(hash_prefix: str):
+    from tools.apply_pipeline import JobApplicationDrafter
+    drafter = JobApplicationDrafter(db_path=DB_PATH)
+    try:
+        res = drafter.generar_postulacion(hash_prefix)
+        print(f"✨ ¡Dossier de postulación generado con éxito!")
+        print(f"📁 Directorio: {res['output_dir']}")
+        print(f"📄 CV Adaptado:          {res['cv_path']}")
+        print(f"✉️ Carta de Presentación: {res['carta_path']}")
+        print(f"🌐 Vista Web Imprimible: {res['html_path']}")
+        if res.get("amenazas"):
+            print(f"⚠️ Advertencias de seguridad detectadas en el texto: {res['amenazas']}")
+    except Exception as e:
+        print(f"❌ Error al generar postulación: {e}")
+
+def ejecutar_interview(hash_prefix: str):
+    from tools.interview_prep import generar_dossier_entrevista
+    try:
+        res = generar_dossier_entrevista(hash_prefix, db_path=DB_PATH)
+        print(f"🎤 ¡Dossier de entrevista generado con éxito!")
+        print(f"🏢 Empresa:  {res['empresa']}")
+        print(f"💼 Puesto:   {res['puesto']}")
+        print(f"📄 Archivo:  {res['output_file']}")
+    except Exception as e:
+        print(f"❌ Error al generar dossier de entrevista: {e}")
+
+def ejecutar_report():
+    from tools.html_reporter import generar_reporte_html
+    try:
+        res = generar_reporte_html(db_path=DB_PATH)
+        print(f"📊 Cuadro de mando generado con éxito ({res['total_ofertas']} ofertas analizadas).")
+        print(f"🌐 Archivo: {res['output_file']}")
+    except Exception as e:
+        print(f"❌ Error al generar cuadro de mando: {e}")
+
+def ejecutar_upskill():
+    from tools.upskill_analyzer import analizar_brechas_db
+    try:
+        res = analizar_brechas_db(db_path=DB_PATH)
+        print(f"\n📈 === ANÁLISIS DE BRECHAS FORMATIVAS ({res['total_analizadas']} ofertas analizadas) ===")
+        print(f"{'TECNOLOGÍA':<20} | {'CATEGORÍA':<22} | {'MENCIONES':<10} | {'% OFERTAS'}")
+        print("-" * 65)
+        for b in res["brechas"]:
+            print(f"{b['tecnologia']:<20} | {b['categoria']:<22} | {b['menciones']:<10} | {b['porcentaje_ofertas']}%")
+        print("\n💡 Recomendaciones de aprendizaje prioritario:")
+        for r in res["recomendaciones"]:
+            print(f"  • {r}")
+        print()
+    except Exception as e:
+        print(f"❌ Error al analizar brechas: {e}")
 
 def purgar_base_datos(conservar_interesantes: bool = True):
     from datetime import datetime, timezone
@@ -209,12 +263,11 @@ def purgar_base_datos(conservar_interesantes: bool = True):
     print(f"🧹 Base de datos purgada con éxito. Se eliminaron {total} ofertas (conservando interesantes/solicitadas).")
     print(f"📄 Archivo '{json_path}' sincronizado ({len(datos)} ofertas activas).")
 
-
 def ayuda():
     print("""
-Uso de la herramienta de gestión de ofertas:
+Uso de la herramienta de gestión y postulación:
 
-  1. Actualizar estado de una oferta por hash:
+  1. Gestión de estado de ofertas:
      python src/gestionar.py <hash> <ESTADO>
      Ejemplo: python src/gestionar.py a7c612 INTERESANTE
      (Estados disponibles: NUEVA, INTERESANTE, SOLICITADA, DESCARTADA)
@@ -222,16 +275,25 @@ Uso de la herramienta de gestión de ofertas:
   2. Listar ofertas registradas:
      python src/gestionar.py --list
      python src/gestionar.py --list INTERESANTE
-     python src/gestionar.py --list SOLICITADA
 
-  3. Ver información detallada de una oferta:
+  3. Ver detalle completo de una oferta:
      python src/gestionar.py --info <hash>
-     Ejemplo: python src/gestionar.py --info a7c612
 
-  4. Purgar base de datos y restablecer ofertas:
+  4. Generar CV adaptado y Carta de Presentación (/apply):
+     python src/gestionar.py --apply <hash>
+
+  5. Generar dossier de preparación de entrevista (/interview):
+     python src/gestionar.py --interview <hash>
+
+  6. Generar cuadro de mando visual offline (/html-report):
+     python src/gestionar.py --report
+
+  7. Analizar brechas tecnológicas en el mercado (/upskill):
+     python src/gestionar.py --upskill
+
+  8. Purgar base de datos:
      python src/gestionar.py --purgar
 """)
-
 
 def main():
     if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help"):
@@ -248,10 +310,23 @@ def main():
             print("❌ Debes indicar el hash de la oferta: python src/gestionar.py --info <hash>")
             sys.exit(1)
         mostrar_info(sys.argv[2])
+    elif arg1 == "--apply":
+        if len(sys.argv) < 3:
+            print("❌ Debes indicar el hash de la oferta: python src/gestionar.py --apply <hash>")
+            sys.exit(1)
+        ejecutar_apply(sys.argv[2])
+    elif arg1 == "--interview":
+        if len(sys.argv) < 3:
+            print("❌ Debes indicar el hash de la oferta: python src/gestionar.py --interview <hash>")
+            sys.exit(1)
+        ejecutar_interview(sys.argv[2])
+    elif arg1 == "--report":
+        ejecutar_report()
+    elif arg1 == "--upskill":
+        ejecutar_upskill()
     elif arg1 == "--purgar":
         purgar_base_datos()
     else:
-        # Modo: <hash> <ESTADO>
         if len(sys.argv) < 3:
             print("❌ Sintaxis: python src/gestionar.py <hash> <ESTADO>")
             print(f"   Estados válidos: {', '.join(ESTADOS_VALIDOS)}")
@@ -259,7 +334,6 @@ def main():
         hash_val = arg1
         estado_val = sys.argv[2]
         actualizar_estado(hash_val, estado_val)
-
 
 if __name__ == "__main__":
     main()

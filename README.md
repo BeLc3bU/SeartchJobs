@@ -44,17 +44,32 @@ El motor descarta automáticamente cualquier oferta que no cumpla una de estas d
 
 ```text
 AlertasEmpleo/
-├── .github/
-│   └── workflows/
-│       └── empleo.yml        # Orquestación diaria (06:00 UTC) en GitHub Actions
-├── data/
-│   ├── .gitkeep
-│   └── empleo.db             # Base de datos SQLite persistida vía git push
+├── .agents/
+│   ├── AGENTS.md                         # Puntero único canónico para agentes de IA
+│   └── skills/
+│       └── job-application-assistant/   # Perfil y metodología de postulación de Pedro
+├── cv/                                   # Plantillas de CV (Markdown y moderncv LaTeX)
+├── cover_letters/                        # Plantillas de Cartas de Presentación (Markdown y cover.cls)
+├── documents/                            # Evidencias, reportes y carpetas de candidaturas
+│   ├── applications/                     # Dossiers generados por empresa y puesto
+│   └── reporte_empleo.html               # Cuadro de mando interactivo offline
+├── tools/                                # Suite de postulación inteligente
+│   ├── apply_pipeline.py                 # Generador Drafter-Reviewer (CV + Carta)
+│   ├── interview_prep.py                 # Dossier de entrevista y marco STAR
+│   ├── html_reporter.py                  # Generador de cuadro de mandos con gráficos SVG
+│   ├── upskill_analyzer.py               # Análisis de brechas formativas de vacantes
+│   └── security.py                       # Sanitizador determinista anti-injection
 ├── src/
-│   ├── job_agent.py          # Pipeline principal: Ingesta, Filtrado, Persistencia y Telegram
-│   └── gestionar.py          # Herramienta CLI para consultar y actualizar estados
-├── requirements.txt          # Dependencias esenciales (requests, feedparser, beautifulsoup4)
-└── README.md                 # Manual de configuración y uso
+│   ├── core/agent.py                     # Orquestador del pipeline JobAgent
+│   ├── db/manager.py                     # DatabaseManager (SQLite)
+│   ├── matching/                         # Normalizadores y ProfileMatcher (filtros Pedro)
+│   ├── connectors/                       # Conectores modulares (Tecnoempleo, InfoJobs, LinkedIn, Indeed, JobToday)
+│   ├── notifiers/telegram.py             # Despachador interactivo de Telegram
+│   ├── job_agent.py                      # Fachada de retrocompatibilidad
+│   └── gestionar.py                      # CLI integral de gestión y postulación
+├── tests/                                # Suite completa de pruebas unitarias y regresión
+├── requirements.txt                      # Dependencias esenciales
+└── README.md                             # Manual de configuración y uso
 ```
 
 ---
@@ -159,6 +174,38 @@ python src/gestionar.py a7c612 SOLICITADA
 ### 3. Inspeccionar el detalle completo de una vacante
 ```bash
 python src/gestionar.py --info a7c612
+```
+
+---
+
+## 🤖 Suite de Postulación Inteligente (`tools/`)
+
+Basada en la metodología del framework [MadsLorentzen/ai-job-search](https://github.com/MadsLorentzen/ai-job-search):
+
+### 1. Generar CV adaptado y Carta de Presentación personalizada
+Genera automáticamente el CV a medida (destacando las tecnologías demandadas) y la carta de presentación con visión hacia el futuro, junto con una vista web imprimible en HTML lista para exportar a PDF con `Ctrl+P`:
+```bash
+python src/gestionar.py --apply <hash_oferta>
+# Ejemplo: python src/gestionar.py --apply fa4d2be7
+```
+Los archivos se archivarán automáticamente en `documents/applications/<empresa>_<puesto>_<hash>/`.
+
+### 2. Generar Dossier de Preparación de Entrevista
+Crea un documento con preguntas probables de RRHH y técnicas, mapeo directo a historias reales de Pedro mediante el marco **STAR** (Situación, Tarea, Acción, Resultado) y preguntas estratégicas para formular a la empresa:
+```bash
+python src/gestionar.py --interview <hash_oferta>
+```
+
+### 3. Generar Cuadro de Mando Visual Offline
+Genera un dashboard HTML autónomo (`documents/reporte_empleo.html`) con gráficos vectoriales SVG (desglose por fuente, embudo de estados y tabla de ofertas):
+```bash
+python src/gestionar.py --report
+```
+
+### 4. Analizar Brechas Formativas del Mercado (Upskilling)
+Analiza la base de datos de ofertas para identificar las certificaciones y competencias más demandadas en el mercado español que pueden potenciar el perfil:
+```bash
+python src/gestionar.py --upskill
 ```
 
 ---
