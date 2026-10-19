@@ -39,3 +39,48 @@ def test_job_application_drafter_mock(tmp_path):
     assert os.path.exists(res["carta_path"])
     assert os.path.exists(res["html_path"])
 
+def test_interview_prep(tmp_path):
+    import os
+    from tools.interview_prep import generar_dossier_entrevista
+    oferta = {"empresa": "SimuFlight", "puesto": "Técnico de Aviónica y Simulación", "descripcion": "Mantenimiento de instrumentación y redes."}
+    out = str(tmp_path / "interview.md")
+    res = generar_dossier_entrevista(oferta, out)
+    assert os.path.exists(out)
+    with open(out, "r", encoding="utf-8") as f:
+        contenido = f.read()
+    assert "STAR" in contenido
+    assert "SimuFlight" in contenido
+
+def test_html_reporter(tmp_path):
+    import os
+    from src.db.manager import DatabaseManager
+    from tools.html_reporter import generar_reporte_html
+    db_file = str(tmp_path / "empleo.db")
+    db = DatabaseManager(db_path=db_file)
+    out_html = str(tmp_path / "reporte.html")
+    res = generar_reporte_html(db_path=db_file, output_file=out_html)
+    assert os.path.exists(out_html)
+    with open(out_html, "r", encoding="utf-8") as f:
+        contenido = f.read()
+    assert "Cuadro de Mando" in contenido or "Reporte de Empleo" in contenido
+
+def test_upskill_analyzer(tmp_path):
+    from src.db.manager import DatabaseManager
+    from tools.upskill_analyzer import analizar_brechas_db
+    db_file = str(tmp_path / "empleo.db")
+    db = DatabaseManager(db_path=db_file)
+    db.guardar_oferta({
+        "id": "of_1",
+        "puesto": "DevOps Engineer",
+        "empresa": "CloudCo",
+        "descripcion": "Kubernetes, Docker, AWS, Terraform, CI/CD",
+        "ubicacion": "Remoto",
+        "url": "https://ejemplo.com/1",
+        "fuente": "Test",
+        "clasificacion": "B"
+    })
+    res = analizar_brechas_db(db_path=db_file)
+    assert "brechas" in res
+    assert len(res["brechas"]) > 0
+
+
