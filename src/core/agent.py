@@ -34,9 +34,10 @@ class JobAgent:
         logger.info("=== INICIANDO AGENTE DE BÚSQUEDA DE EMPLEO ===")
         ahora_str = datetime.now(timezone.utc).strftime("%d/%m/%Y %H:%M UTC")
 
-        eliminadas = self.db.purgar_ofertas_anteriores(conservar_interesantes=True)
+        eliminadas = self.db.purgar_ofertas_antiguas(dias=60, conservar_interesantes=True)
         if eliminadas > 0:
-            logger.info("Purga diaria: %d ofertas de días anteriores no interesantes eliminadas.", eliminadas)
+            logger.info("Mantenimiento: %d ofertas de más de 60 días no interesantes eliminadas.", eliminadas)
+
 
         self.db.reclasificar_bd(self.matcher)
 
@@ -75,7 +76,7 @@ class JobAgent:
 
         logger.info("Nuevas ofertas insertadas en BD: %d. Relevantes (A/B): %d.", nuevas_procesadas, len(ofertas_notificar))
 
-        self.db.exportar_json()
+        self.db.exportar_json(solo_nuevas_horas=48)
 
         if ofertas_notificar:
             total_n = len(ofertas_notificar)

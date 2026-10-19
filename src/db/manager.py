@@ -207,6 +207,32 @@ class DatabaseManager:
         logger.info("Base de datos purgada: %d ofertas eliminadas.", total)
         return total
 
+    def purgar_ofertas_antiguas(self, dias: int = 60, conservar_interesantes: bool = True) -> int:
+        limite_tiempo = (datetime.now(timezone.utc) - timedelta(days=dias)).isoformat()
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            if conservar_interesantes:
+                cursor.execute("""
+                    DELETE FROM ofertas 
+                    WHERE fecha_procesada < ? 
+                      AND estado NOT IN ('INTERESANTE', 'SOLICITADA')
+                """, (limite_tiempo,))
+            else:
+                cursor.execute("""
+                    DELETE FROM ofertas 
+                    WHERE fecha_procesada < ?
+                """, (limite_tiempo,))
+            eliminadas = cursor.rowcount
+            cursor.execute("INSERT OR REPLACE INTO metadata (clave, valor) VALUES ('ultima_purga', ?)",
+                           (datetime.now(timezone.utc).isoformat(),))
+            conn.commit()
+            cursor.execute("VACUUM")
+            conn.commit()
+
+        self.exportar_json()
+        logger.info("Purga de ofertas de más de %d días completada: %d ofertas eliminadas.", dias, eliminadas)
+        return eliminadas
+
     def purgar_semanal_si_procede(self, dias: int = 7) -> bool:
         with self._get_connection() as conn:
             cursor = conn.cursor()
@@ -227,13 +253,14 @@ class DatabaseManager:
                 ultima_fecha = ultima_fecha.replace(tzinfo=timezone.utc)
             diferencia = datetime.now(timezone.utc) - ultima_fecha
             if diferencia >= timedelta(days=dias):
-                logger.info("Han pasado %d días desde la última purga (%s). Ejecutando purga semanal...", diferencia.days, fila["valor"])
-                self.purgar()
+                logger.info("Han pasado %d días desde el último mantenimiento. Purgando ofertas de más de 60 días...", diferencia.days)
+                self.purgar_ofertas_antiguas(dias=60, conservar_interesantes=True)
                 return True
         except Exception as e:
             logger.warning("Error al evaluar fecha de última purga: %s", e)
 
         return False
+
 
     def obtener_ultimas_activas(self, limite: int = 5, clasificacion: Optional[str] = None) -> List[Dict[str, Any]]:
         with self._get_connection() as conn:
@@ -290,9 +317,16 @@ class DatabaseManager:
             self.exportar_json()
             return dict(of)
 
-    def exportar_json(self, output_path: Optional[str] = None):
+    def exportar_json(self, output_path: Optional[str] = None, solo_nuevas_horas: int = 48):
+        """
+        Exporta las ofertas relevantes a un archivo JSON para consumo por el Webhook de Cloudflare.
+        Incluye:
+          - Todas las ofertas marcadas como 'INTERESANTE' o 'SOLICITADA'.
+          - Ofertas de Clase A y B en estado 'NUEVA' detectadas en las últimas 'solo_nuevas_horas' horas.
+        """
         if not output_path:
             output_path = os.path.join(os.path.dirname(self.db_path), "ofertas.json")
+        limite_tiempo = (datetime.now(timezone.utc) - timedelta(hours=solo_nuevas_horas)).isoformat()
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
@@ -300,9 +334,13 @@ class DatabaseManager:
                        url, fuente, clasificacion, estado, requisitos_cumple,
                        requisitos_verificar, motivo, fecha_publicacion, fecha_procesada
                 FROM ofertas
-                WHERE clasificacion IN ('A', 'B')
-                ORDER BY clasificacion ASC, fecha_procesada DESC
-            """)
+                WHERE (clasificacion IN ('A', 'B') AND estado = 'NUEVA' AND fecha_procesada >= ?)
+                   OR (estado IN ('INTERESANTE', 'SOLICITADA'))
+                ORDER BY 
+                    CASE WHEN estado = 'INTERESANTE' THEN 1 ELSE 2 END,
+                    clasificacion ASC, 
+                    fecha_procesada DESC
+            """, (limite_tiempo,))
             filas = cursor.fetchall()
             datos = []
             for f in filas:
@@ -313,7 +351,8 @@ class DatabaseManager:
             
             with open(output_path, "w", encoding="utf-8") as f:
                 json.dump(datos, f, ensure_ascii=False, indent=2)
-            logger.info("Exportado archivo JSON con %d ofertas en %s", len(datos), output_path)
+            logger.info("Exportado archivo JSON con %d ofertas en %s (nuevas de últimas %dh e interesantes)", len(datos), output_path, solo_nuevas_horas)
+
 
     def reclasificar_bd(self, matcher: Any) -> int:
         actualizadas = 0

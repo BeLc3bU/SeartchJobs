@@ -138,29 +138,90 @@ class BotListener:
                 f"La base de datos queda limpia y lista para nuevas búsquedas."
             )
 
-    def enviar_ultimas_ofertas(self, limite: int = 4):
-        """Recupera y envía las mejores ofertas activas con enlaces directos y botones de acción."""
+    def enviar_ultimas_ofertas(self, limite: int = 50):
+        """Recupera y envía las mejores ofertas activas con tarjeta interactiva y botones de paginación."""
         ofertas = self.db.obtener_ultimas_activas(limite=limite)
         if not ofertas:
             self.telegram.enviar_mensaje("No hay ofertas activas disponibles en la base de datos.")
             return
 
-        self.telegram.enviar_mensaje(f"🎯 <b>ÚLTIMAS {len(ofertas)} OFERTAS ACTIVAS CON ENCAJE DIRECTO:</b>\n────────────────────────")
-        for of in ofertas:
-            bloque = self.telegram.formatear_oferta_html(of)
-            self.telegram.enviar_mensaje(bloque)
+        total_n = len(ofertas)
+        primera_of = ofertas[0]
+        card_html = self.telegram.formatear_oferta_tarjeta(primera_of, 0, total_n)
+        teclado = self.telegram.construir_teclado_oferta(primera_of, 0, total_n)
+        self.telegram.enviar_mensaje(card_html, inline_keyboard=teclado)
+
+    def procesar_callback(self, cq: dict):
+        """Gestiona las pulsaciones de botones interactivos (Siguiente, Anterior, Interesante)."""
+        query_id = cq.get("id")
+        data = cq.get("data", "")
+        message = cq.get("message", {})
+        chat_id = str(message.get("chat", {}).get("id", ""))
+        message_id = message.get("message_id")
+
+        if chat_id != self.chat_id:
+            self.telegram.responder_callback(query_id)
+            return
+
+        if data == "of_noop":
+            self.telegram.responder_callback(query_id)
+            return
+
+        if data.startswith("of_"):
+            try:
+                target_idx = int(data.replace("of_", ""))
+                ofertas = self.db.obtener_ultimas_activas(limite=50)
+                if 0 <= target_idx < len(ofertas):
+                    of = ofertas[target_idx]
+                    total = len(ofertas)
+                    card = self.telegram.formatear_oferta_tarjeta(of, target_idx, total)
+                    teclado = self.telegram.construir_teclado_oferta(of, target_idx, total)
+                    self.telegram.editar_mensaje(message_id, card, inline_keyboard=teclado)
+                    self.telegram.responder_callback(query_id)
+                else:
+                    self.telegram.responder_callback(query_id, "No hay más ofertas en esta dirección.")
+            except Exception as e:
+                logger.error("Error al procesar paginación: %s", e)
+                self.telegram.responder_callback(query_id)
+            return
+
+        if data.startswith("fav_"):
+            h = data.replace("fav_", "").strip()
+            of = self.db.actualizar_estado_oferta(h, "INTERESANTE")
+            self.telegram.responder_callback(query_id, "⭐ ¡Guardada en Interesantes!", alert=False)
+            if of:
+                confirm = (
+                    f"⭐ <b>¡VACANTE GUARDADA EN INTERESANTES!</b>\n\n"
+                    f"💼 <b>{of['puesto']}</b> ({of['empresa']})\n"
+                    f"🔗 <a href='{of['url']}'>Ver Oferta</a>\n"
+                    f"⚡ /solicitada_{h} | /descartar_{h}"
+                )
+                self.telegram.enviar_mensaje(confirm)
+            return
+
+        self.telegram.responder_callback(query_id)
 
     def iniciar_escucha(self):
         logger.info("Iniciando servicio de escucha continua en Telegram para chat_id %s...", self.chat_id)
         print("=" * 60)
         print("🤖 SERVICIO DE ESCUCHA TELEGRAM ACTIVO")
-        print("El bot responderá instantáneamente a tus comandos desde el móvil.")
+        print("El bot responderá instantáneamente a tus comandos y botones desde el móvil.")
         print("Pulsa Ctrl+C para detener.")
         print("=" * 60)
 
+        # Desactivar posibles webhooks conflictivos para permitir polling local getUpdates
+        try:
+            r_wh = requests.get(f"https://api.telegram.org/bot{self.token}/getWebhookInfo", timeout=10)
+            if r_wh.status_code == 200 and r_wh.json().get("result", {}).get("url"):
+                old_url = r_wh.json()["result"]["url"]
+                logger.warning("Detectado webhook activo (%s). Desactivándolo para permitir escucha local...", old_url)
+                requests.get(f"https://api.telegram.org/bot{self.token}/deleteWebhook", timeout=10)
+        except Exception as e:
+            logger.warning("Aviso al verificar webhook de Telegram: %s", e)
+
         # Limpiar mensajes viejos iniciales
         try:
-            url = f"https://api.telegram.org/bot{self.token}/getUpdates"
+            url = f"https://api.telegram.org/bot{self.token}/getUpdates?allowed_updates=[\"message\",\"callback_query\"]"
             r = requests.get(url, timeout=10)
             if r.status_code == 200:
                 updates = r.json().get("result", [])
@@ -171,7 +232,7 @@ class BotListener:
 
         while True:
             try:
-                url = f"https://api.telegram.org/bot{self.token}/getUpdates?offset={self.offset}&timeout=20"
+                url = f"https://api.telegram.org/bot{self.token}/getUpdates?offset={self.offset}&timeout=20&allowed_updates=[\"message\",\"callback_query\"]"
                 resp = requests.get(url, timeout=25)
                 if resp.status_code != 200:
                     time.sleep(3)
@@ -180,6 +241,13 @@ class BotListener:
                 updates = resp.json().get("result", [])
                 for u in updates:
                     self.offset = u["update_id"] + 1
+
+                    # 1. Pulsación de botones interactivos (Siguiente, Anterior, Interesante)
+                    if "callback_query" in u:
+                        self.procesar_callback(u["callback_query"])
+                        continue
+
+                    # 2. Mensajes de texto normales
                     msg = u.get("message", {})
                     texto = msg.get("text", "")
                     chat_id = str(msg.get("chat", {}).get("id", ""))

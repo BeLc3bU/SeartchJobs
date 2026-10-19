@@ -31,4 +31,7 @@ documents/applications/*
 documents/*.html
 documents/interview_*.md
 
+# Superpowers scratch y ledger
+.superpowers/
+
 

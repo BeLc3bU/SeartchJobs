@@ -354,7 +354,7 @@ async function handleCommand(text, chatId, token, env) {
 
   if (t.startsWith("/ofertas") || t.startsWith("/ultimas")) {
     if (ofertas.length === 0) {
-      await sendTelegramMessage(token, chatId, "⚠️ No se han encontrado ofertas activas para Grado Superior actualmente.");
+      await sendTelegramMessage(token, chatId, "⚠️ <b>No hay nuevos anuncios detectados en las últimas 24-48h.</b>\n\nLos anuncios de días anteriores ya fueron procesados para evitar repeticiones. Puedes consultar tus vacantes guardadas con /interesantes o lanzar una búsqueda en vivo con /buscar.");
       return;
     }
 

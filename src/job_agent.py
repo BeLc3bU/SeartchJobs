@@ -67,12 +67,3 @@ __all__ = [
     "TelegramDispatcher",
     "JobAgent"
 ]
-
-if __name__ == "__main__":
-    agent = JobAgent()
-    if "--reclasificar" in sys.argv:
-        count = agent.db.reclasificar_bd(agent.matcher)
-        agent.db.exportar_json()
-        print(f"Reclasificación completada: {count} ofertas actualizadas. Archivo ofertas.json sincronizado.")
-    else:
-        agent.ejecutar()
