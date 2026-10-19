@@ -39,6 +39,11 @@ def test_job_application_drafter_mock(tmp_path):
     assert os.path.exists(res["carta_path"])
     assert os.path.exists(res["html_path"])
 
+def test_slugify_acentos():
+    from tools.apply_pipeline import slugify
+    assert slugify("Administración & Gestión Técnica") == "administracion__gestion_tecnica"
+    assert slugify("Álvaro Ñoño") == "alvaro_nono"
+
 def test_interview_prep(tmp_path):
     import os
     from tools.interview_prep import generar_dossier_entrevista
@@ -82,5 +87,16 @@ def test_upskill_analyzer(tmp_path):
     res = analizar_brechas_db(db_path=db_file)
     assert "brechas" in res
     assert len(res["brechas"]) > 0
+
+def test_interview_prep_caracteres_especiales(tmp_path):
+    import os
+    from tools.interview_prep import generar_dossier_entrevista
+    oferta = {"empresa": "Aero/Tech: S.L.", "puesto": "Administrativo/a & Linux", "descripcion": "Puesto con barras y caracteres especiales."}
+    res = generar_dossier_entrevista(oferta, output_dir=str(tmp_path))
+    assert res["exito"] is True
+    assert os.path.exists(res["output_file"])
+    # Verificar que no creó subcarpetas accidentales debido a las barras
+    assert os.path.basename(res["output_file"]).startswith("interview_")
+
 
 

@@ -1,5 +1,6 @@
 import os
 import json
+import html
 from datetime import datetime
 from typing import Dict, Any, Optional
 from src.db.manager import DatabaseManager
@@ -46,8 +47,9 @@ def generar_reporte_html(db_path: Optional[str] = None, output_file: Optional[st
     y_offset = 25
     for f_nom, f_cnt in fuentes.items():
         w = int((f_cnt / max_fuente) * 280)
+        f_nom_esc = html.escape(str(f_nom))
         svg_barras += f"""
-        <text x="10" y="{y_offset + 14}" font-size="12" fill="#444">{f_nom} ({f_cnt})</text>
+        <text x="10" y="{y_offset + 14}" font-size="12" fill="#444">{f_nom_esc} ({f_cnt})</text>
         <rect x="150" y="{y_offset}" width="{w}" height="18" rx="3" fill="#0f4c81" opacity="0.85" />
         """
         y_offset += 30
@@ -61,21 +63,30 @@ def generar_reporte_html(db_path: Optional[str] = None, output_file: Optional[st
     # Filas de la tabla de ofertas
     filas_html = ""
     for of in ultimas_ofertas:
-        clase_badge = f'<span class="badge badge-{of["clasificacion"].lower()}">Clase {of["clasificacion"]}</span>'
-        estado_badge = f'<span class="badge badge-estado">{of["estado"]}</span>'
+        puesto_esc = html.escape(str(of.get("puesto", "")))
+        empresa_esc = html.escape(str(of.get("empresa", "")))
+        ubicacion_esc = html.escape(str(of.get("ubicacion", "")))
+        modalidad_esc = html.escape(str(of.get("modalidad", "")))
+        fuente_esc = html.escape(str(of.get("fuente", "")))
+        clase_esc = html.escape(str(of.get("clasificacion", "C")))
+        estado_esc = html.escape(str(of.get("estado", "")))
+        id_esc = html.escape(str(of.get("id", ""))[:8])
+
+        clase_badge = f'<span class="badge badge-{clase_esc.lower()}">Clase {clase_esc}</span>'
+        estado_badge = f'<span class="badge badge-estado">{estado_esc}</span>'
         filas_html += f"""
         <tr>
           <td>{clase_badge}</td>
-          <td><strong>{of['puesto']}</strong></td>
-          <td>{of['empresa']}</td>
-          <td>{of['ubicacion']} ({of['modalidad']})</td>
-          <td>{of['fuente']}</td>
+          <td><strong>{puesto_esc}</strong></td>
+          <td>{empresa_esc}</td>
+          <td>{ubicacion_esc} ({modalidad_esc})</td>
+          <td>{fuente_esc}</td>
           <td>{estado_badge}</td>
-          <td><code>{of['id'][:8]}</code></td>
+          <td><code>{id_esc}</code></td>
         </tr>
         """
 
-    html = f"""<!DOCTYPE html>
+    html_content = f"""<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -172,7 +183,7 @@ def generar_reporte_html(db_path: Optional[str] = None, output_file: Optional[st
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, "w", encoding="utf-8") as f:
-        f.write(html)
+        f.write(html_content)
 
     return {
         "exito": True,

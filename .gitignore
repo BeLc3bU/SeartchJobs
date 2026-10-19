@@ -25,3 +25,10 @@ data/*.log
 tests/*.db
 tests/*.json
 
+# Documentos y candidaturas generadas localmente
+documents/applications/*
+!documents/applications/.gitkeep
+documents/*.html
+documents/interview_*.md
+
+

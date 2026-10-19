@@ -1,4 +1,5 @@
 import os
+import re
 from typing import Dict, Any, Optional, Union
 from src.db.manager import DatabaseManager
 
@@ -7,6 +8,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def generar_dossier_entrevista(
     oferta_or_id: Union[str, Dict[str, Any]],
     output_file: Optional[str] = None,
+    output_dir: Optional[str] = None,
     db_path: Optional[str] = None
 ) -> Dict[str, Any]:
     """
@@ -16,17 +18,14 @@ def generar_dossier_entrevista(
         oferta = oferta_or_id
     else:
         db = DatabaseManager(db_path=db_path) if db_path else DatabaseManager()
-        with db._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM ofertas WHERE id LIKE ? LIMIT 1", (f"{oferta_or_id}%",))
-            row = cursor.fetchone()
-            if not row:
-                raise ValueError(f"No se encontró la oferta '{oferta_or_id}'.")
-            oferta = dict(row)
+        oferta = db.obtener_oferta(oferta_or_id)
+        if not oferta:
+            raise ValueError(f"No se encontró la oferta '{oferta_or_id}'.")
 
     empresa = oferta.get("empresa", "Empresa Objetivo")
     puesto = oferta.get("puesto", "Puesto Técnico")
     descripcion = oferta.get("descripcion", "")
+
 
     dossier = f"""# Dossier de Preparación de Entrevista: {puesto} en {empresa}
 **Candidato:** Pedro Úbeda Sánchez  
@@ -74,7 +73,10 @@ def generar_dossier_entrevista(
 """
 
     if not output_file:
-        output_file = os.path.join(REPO_ROOT, "documents", f"interview_{empresa.replace(' ', '_')}_{puesto.replace(' ', '_')}.md")
+        sanitized_empresa = re.sub(r'[\\/*?:"<>|]', '_', empresa).replace(' ', '_')
+        sanitized_puesto = re.sub(r'[\\/*?:"<>|]', '_', puesto).replace(' ', '_')
+        base_dir = output_dir or os.path.join(REPO_ROOT, "documents")
+        output_file = os.path.join(base_dir, f"interview_{sanitized_empresa}_{sanitized_puesto}.md")
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with open(output_file, "w", encoding="utf-8") as f:

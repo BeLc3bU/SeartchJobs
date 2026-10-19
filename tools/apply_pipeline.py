@@ -1,5 +1,7 @@
 import os
 import re
+import html
+import unicodedata
 from datetime import datetime
 from typing import Dict, Any, Optional, Union
 
@@ -11,7 +13,15 @@ CV_TEMPLATE_PATH = os.path.join(REPO_ROOT, "cv", "cv_pedro_template.md")
 COVER_TEMPLATE_PATH = os.path.join(REPO_ROOT, "cover_letters", "cover_template.md")
 DEFAULT_APPLICATIONS_DIR = os.path.join(REPO_ROOT, "documents", "applications")
 
+MESES_ES = {
+    1: "enero", 2: "febrero", 3: "marzo", 4: "abril",
+    5: "mayo", 6: "junio", 7: "julio", 8: "agosto",
+    9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"
+}
+
 def slugify(text: str) -> str:
+    # Normalizar acentos y diacríticos (á -> a, ñ -> n, etc.)
+    text = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('utf-8')
     text = text.lower().strip()
     text = re.sub(r'[\s_]+', '_', text)
     text = re.sub(r'[^a-z0-9_]', '', text)
@@ -29,13 +39,9 @@ class JobApplicationDrafter:
         if isinstance(oferta_or_id, dict):
             return oferta_or_id
         
-        # Buscar en la base de datos SQLite por ID o prefijo
-        with self.db._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM ofertas WHERE id LIKE ? LIMIT 1", (f"{oferta_or_id}%",))
-            fila = cursor.fetchone()
-            if fila:
-                return dict(fila)
+        oferta = self.db.obtener_oferta(oferta_or_id)
+        if oferta:
+            return oferta
         
         raise ValueError(f"No se encontró ninguna oferta con identificador '{oferta_or_id}'.")
 
@@ -88,7 +94,8 @@ class JobApplicationDrafter:
         cv_adaptado = cv_content.replace("## Competencias Técnicas\n", f"## Competencias Técnicas\n{bloque_destacado}\n")
 
         # 4. Leer y adaptar la Carta de Presentación
-        fecha_hoy = datetime.now().strftime("%d de %B de %Y")
+        now = datetime.now()
+        fecha_hoy = f"{now.day} de {MESES_ES[now.month]} de {now.year}"
         if os.path.exists(COVER_TEMPLATE_PATH):
             with open(COVER_TEMPLATE_PATH, "r", encoding="utf-8") as f:
                 cover_content = f.read()
@@ -103,11 +110,16 @@ class JobApplicationDrafter:
         carta_adaptada = carta_adaptada.replace("{{VALOR_ESPECIFICO_OFERTA}}", valor_especifico)
 
         # 5. Generar vista HTML integrada con CSS elegante para impresión
+        puesto_esc = html.escape(puesto)
+        empresa_esc = html.escape(empresa)
+        carta_esc = html.escape(carta_adaptada)
+        cv_esc = html.escape(cv_adaptado)
+
         html_content = f"""<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>Postulación: {puesto} - {empresa}</title>
+<title>Postulación: {puesto_esc} - {empresa_esc}</title>
 <style>
   body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #222; max-width: 800px; margin: 40px auto; padding: 0 20px; }}
   h1, h2, h3 {{ color: #0f4c81; margin-top: 1.2em; }}
@@ -123,12 +135,12 @@ class JobApplicationDrafter:
 </div>
 <div>
   <h2>Carta de Presentación</h2>
-  <pre style="white-space: pre-wrap; font-family: inherit;">{carta_adaptada}</pre>
+  <pre style="white-space: pre-wrap; font-family: inherit;">{carta_esc}</pre>
 </div>
 <div class="page-break"></div>
 <div>
   <h2>Currículum Vitae Adaptado</h2>
-  <pre style="white-space: pre-wrap; font-family: inherit;">{cv_adaptado}</pre>
+  <pre style="white-space: pre-wrap; font-family: inherit;">{cv_esc}</pre>
 </div>
 </body>
 </html>"""

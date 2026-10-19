@@ -259,6 +259,24 @@ class DatabaseManager:
                 res.append(d)
             return res
 
+    def obtener_oferta(self, hash_prefix: str) -> Optional[Dict[str, Any]]:
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM ofertas WHERE id LIKE ? LIMIT 1", (f"{hash_prefix}%",))
+            row = cursor.fetchone()
+            if not row:
+                return None
+            d = dict(row)
+            try:
+                d["requisitos_cumple"] = json.loads(d["requisitos_cumple"] or "[]")
+            except Exception:
+                d["requisitos_cumple"] = []
+            try:
+                d["requisitos_verificar"] = json.loads(d["requisitos_verificar"] or "[]")
+            except Exception:
+                d["requisitos_verificar"] = []
+            return d
+
     def actualizar_estado_oferta(self, hash_prefix: str, nuevo_estado: str) -> Optional[Dict[str, Any]]:
         with self._get_connection() as conn:
             cursor = conn.cursor()
@@ -269,6 +287,7 @@ class DatabaseManager:
             of = filas[0]
             cursor.execute("UPDATE ofertas SET estado = ? WHERE id = ?", (nuevo_estado, of["id"]))
             conn.commit()
+            self.exportar_json()
             return dict(of)
 
     def exportar_json(self, output_path: Optional[str] = None):

@@ -70,6 +70,12 @@ def actualizar_estado(hash_prefix: str, nuevo_estado: str):
         cursor.execute("UPDATE ofertas SET estado = ? WHERE id = ?", (nuevo_estado, oferta["id"]))
         conn.commit()
 
+        try:
+            from src.db.manager import DatabaseManager
+            DatabaseManager(db_path=DB_PATH).exportar_json()
+        except Exception:
+            pass
+
         iconos = {"INTERESANTE": "⭐", "SOLICITADA": "📨", "DESCARTADA": "🗑️", "NUEVA": "🆕"}
         print(f"{iconos.get(nuevo_estado, '✅')} Oferta actualizada con éxito:")
         print(f"   ID:       {oferta['id']}")
@@ -300,40 +306,42 @@ def main():
         ayuda()
         sys.exit(0)
 
-    arg1 = sys.argv[1]
+    raw_arg1 = sys.argv[1]
+    cmd = raw_arg1.lstrip("-").lower()
 
-    if arg1 == "--list":
+    if cmd in ("list", "ls"):
         estado = sys.argv[2] if len(sys.argv) > 2 else None
         listar_ofertas(estado)
-    elif arg1 == "--info":
+    elif cmd in ("info", "show"):
         if len(sys.argv) < 3:
-            print("❌ Debes indicar el hash de la oferta: python src/gestionar.py --info <hash>")
+            print("❌ Debes indicar el hash de la oferta: python src/gestionar.py info <hash>")
             sys.exit(1)
         mostrar_info(sys.argv[2])
-    elif arg1 == "--apply":
+    elif cmd in ("apply", "postular"):
         if len(sys.argv) < 3:
-            print("❌ Debes indicar el hash de la oferta: python src/gestionar.py --apply <hash>")
+            print("❌ Debes indicar el hash de la oferta: python src/gestionar.py apply <hash>")
             sys.exit(1)
         ejecutar_apply(sys.argv[2])
-    elif arg1 == "--interview":
+    elif cmd in ("interview", "entrevista"):
         if len(sys.argv) < 3:
-            print("❌ Debes indicar el hash de la oferta: python src/gestionar.py --interview <hash>")
+            print("❌ Debes indicar el hash de la oferta: python src/gestionar.py interview <hash>")
             sys.exit(1)
         ejecutar_interview(sys.argv[2])
-    elif arg1 == "--report":
+    elif cmd in ("report", "reporte"):
         ejecutar_report()
-    elif arg1 == "--upskill":
+    elif cmd in ("upskill", "brechas"):
         ejecutar_upskill()
-    elif arg1 == "--purgar":
+    elif cmd in ("purgar", "purge"):
         purgar_base_datos()
     else:
         if len(sys.argv) < 3:
             print("❌ Sintaxis: python src/gestionar.py <hash> <ESTADO>")
             print(f"   Estados válidos: {', '.join(ESTADOS_VALIDOS)}")
             sys.exit(1)
-        hash_val = arg1
+        hash_val = raw_arg1
         estado_val = sys.argv[2]
         actualizar_estado(hash_val, estado_val)
+
 
 if __name__ == "__main__":
     main()
