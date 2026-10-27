@@ -9,7 +9,11 @@ Fachada modular compatible con:
 """
 
 import sys
+import os
 import logging
+
+# Añadir el directorio raíz al sys.path para permitir ejecuciones directas (python src/job_agent.py)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Configuración de codificación para consola Windows/Linux
 if sys.platform == "win32":
@@ -67,3 +71,7 @@ __all__ = [
     "TelegramDispatcher",
     "JobAgent"
 ]
+
+if __name__ == "__main__":
+    agent = JobAgent()
+    agent.ejecutar()

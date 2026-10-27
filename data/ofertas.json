@@ -1,24 +1,98 @@
 [
   {
-    "id": "53c6be96e48f",
-    "puesto": "Sales Assistant Sprinter Albacete Imaginalia",
-    "empresa": "SPRINTER MEGACENTROS DEL DEPORTE",
-    "ubicacion": "Albacete",
-    "modalidad": "PRESENCIAL",
+    "id": "26d4ec9df29e",
+    "puesto": "Auxiliar administrativo/a",
+    "empresa": "PSI LEVANTE SL.",
+    "ubicacion": "Valencia",
+    "modalidad": "REMOTO",
     "horario": "Jornada parcial - indiferente",
     "salario": "No especificado",
-    "url": "https://www.infojobs.net/albacete/sales-assistant-sprinter-albacete-imaginalia/of-ib4a6117ca149fbbb6153417cbd5386?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
+    "url": "https://www.infojobs.net/valencia/auxiliar-administrativo/of-ie6c9e7d3ea4f81b887f88faccf5f17?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
     "fuente": "InfoJobs",
+    "clasificacion": "A",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Automatización y scripting: automatización",
+      "Gestión administrativa, contable y documental: administrativo, administrativa, administración, facturación"
+    ],
+    "requisitos_verificar": [],
+    "motivo": "Teletrabajo 100% compatible. Horario: Turno de tarde + Tiempo parcial / media jornada. Oportunidad sólida en Desarrollo / Automatización + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "2026-10-22T17:26:49Z",
+    "fecha_procesada": "2026-10-27T16:08:53.591775+00:00"
+  },
+  {
+    "id": "a607f94a2a4f",
+    "puesto": "Técnico Helpdesk industrial",
+    "empresa": "Michael Page",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "Sin especificar",
+    "url": "https://www.tecnoempleo.com/tecnico-helpdesk-industrial-michael-page/plc-siemens/rf-536a1da9f28303ac5049",
+    "fuente": "Tecnoempleo",
     "clasificacion": "B",
     "estado": "NUEVA",
     "requisitos_cumple": [
-      "Gestión de material, almacén y control de calidad: stock"
+      "Administración de sistemas y redes: soporte técnico, helpdesk",
+      "Aviónica, hardware y sistemas críticos: electrónica",
+      "Automatización y scripting: automatización",
+      "Gestión de material, almacén y control de calidad: repuestos"
     ],
     "requisitos_verificar": [
+      "Verificar nivel de inglés formal B2",
       "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
     ],
-    "motivo": "Posición local en Hellín/Albacete. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
-    "fecha_publicacion": "2026-10-19T06:31:02Z",
-    "fecha_procesada": "2026-10-19T13:25:40.815648+00:00"
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Desarrollo / Automatización + Sistemas / Redes / ASIR + Logística / Calidad / Procedimientos + Aviónica / Electrónica / Simulación donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Mon, 26 Oct 2026 07:33:28 +0000",
+    "fecha_procesada": "2026-10-27T16:08:53.294842+00:00"
+  },
+  {
+    "id": "e6e5e8f58581",
+    "puesto": "Helpdesk N1 - Euskera e Inglés",
+    "empresa": "Sosmatic",
+    "ubicacion": "100% En remoto",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "12000 € - 15000 €  Bruto/año",
+    "url": "https://www.tecnoempleo.com/helpdesk-n1-euskera-e-ingles-sosmatic/soporte-telecomunicaciones/rf-814c15abb215b3bc234d",
+    "fuente": "Tecnoempleo",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Administración de sistemas y redes: redes, lan, wan, tcp/ip"
+    ],
+    "requisitos_verificar": [
+      "Verificar nivel de inglés requerido (B2/C1) para operativa diaria"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Turno de tarde. Oportunidad sólida en Sistemas / Redes / ASIR donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Mon, 26 Oct 2026 07:55:26 +0000",
+    "fecha_procesada": "2026-10-27T16:08:53.281112+00:00"
+  },
+  {
+    "id": "4e75637c6125",
+    "puesto": "Tecnico/a DevSecOps Junior 7:30 15:30h",
+    "empresa": "Grupo Digital",
+    "ubicacion": "100% En remoto",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "Sin especificar",
+    "url": "https://www.tecnoempleo.com/tecnico-devsecops-junior-7-30-15-30h-grupo-digital/pipelines-ci-cd-github-/rf-b71912852251c34e3749",
+    "fuente": "Tecnoempleo",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Administración de sistemas y redes: linux",
+      "Automatización y scripting: python, bash, powershell, scripting",
+      "Gestión administrativa, contable y documental: administración",
+      "Ciberseguridad y protección de sistemas: ciberseguridad, hardening"
+    ],
+    "requisitos_verificar": [
+      "Verificar certificación específica AWS Cloud",
+      "Verificar certificación específica Microsoft Azure",
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Desarrollo / Automatización + Ciberseguridad + Sistemas / Redes / ASIR + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Mon, 26 Oct 2026 10:52:30 +0000",
+    "fecha_procesada": "2026-10-27T16:08:53.207017+00:00"
   }
 ]
