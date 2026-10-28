@@ -1,5 +1,25 @@
 [
   {
+    "id": "06a1204ede84",
+    "puesto": "Administrativa producción y ticketing eventos",
+    "empresa": "PRODUCCIONES SAMARÁN S.A.",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "Tiempo parcial",
+    "salario": "670 - 730 € / mes",
+    "url": "https://jobtoday.com/es/trabajo/administrativa-produccion-y-ticketing-eventos-o4GPjo",
+    "fuente": "Job Today",
+    "clasificacion": "A",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión administrativa, contable y documental: administrativa"
+    ],
+    "requisitos_verificar": [],
+    "motivo": "Teletrabajo 100% compatible. Horario: Fin de semana + Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "1793121830419",
+    "fecha_procesada": "2026-10-28T13:01:50.640881+00:00"
+  },
+  {
     "id": "26d4ec9df29e",
     "puesto": "Auxiliar administrativo/a",
     "empresa": "PSI LEVANTE SL.",
@@ -16,9 +36,82 @@
       "Gestión administrativa, contable y documental: administrativo, administrativa, administración, facturación"
     ],
     "requisitos_verificar": [],
-    "motivo": "Teletrabajo 100% compatible. Horario: Turno de tarde + Tiempo parcial / media jornada. Oportunidad sólida en Desarrollo / Automatización + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "motivo": "Teletrabajo 100% compatible. Horario: Turno de tarde + Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad + Desarrollo / Automatización donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "2026-10-22T17:26:49Z",
     "fecha_procesada": "2026-10-27T16:08:53.591775+00:00"
+  },
+  {
+    "id": "9d985ca9ded4",
+    "puesto": "Logistics Manager - Licenses & Administration",
+    "empresa": "Moove Cars Group",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "No especificado",
+    "url": "https://jobtoday.com/es/trabajo/es46970240154020a73536b5126d12f4b79ef57fc9d467069c9dd5db10079d6ef5",
+    "fuente": "Job Today",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Automatización y scripting: automatización",
+      "Gestión de material, almacén y control de calidad: logística",
+      "Gestión administrativa, contable y documental: excel, tramitación"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos + Administración / Gestión / Contabilidad + Desarrollo / Automatización donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "1793019905000",
+    "fecha_procesada": "2026-10-28T13:01:50.669431+00:00"
+  },
+  {
+    "id": "f91fedf30cc9",
+    "puesto": "Analista Funcional de Negocio (Sector Seguros) Jornada Parcial",
+    "empresa": "BOYCOR",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "Jornada indiferente",
+    "salario": "No especificado",
+    "url": "https://www.infojobs.net/madrid/analista-funcional-negocio-sector-seguros-jornada-parcial/of-if6ded4670d427b90ec90fd9ec826d8?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
+    "fuente": "InfoJobs",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión administrativa, contable y documental: tramitación"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "2026-10-28T09:15:33Z",
+    "fecha_procesada": "2026-10-28T13:01:50.585995+00:00"
+  },
+  {
+    "id": "4f567e01444f",
+    "puesto": "Gestor/a Servicios IT Infraestructuras",
+    "empresa": "Serem",
+    "ubicacion": "hibrido",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "Sin especificar",
+    "url": "https://www.tecnoempleo.com/gestor-servicios-it-infraestructuras-serem/sla-itil/rf-5f741db802ce3392864d",
+    "fuente": "Tecnoempleo",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Administración de sistemas y redes: redes",
+      "Gestión administrativa, contable y documental: excel"
+    ],
+    "requisitos_verificar": [
+      "Verificar exigencia de certificación oficial Cisco CCNA",
+      "Verificar certificación específica AWS Cloud",
+      "Verificar certificación en marco ITIL",
+      "Verificar nivel de inglés formal C1",
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Sistemas / Redes / ASIR + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Wed, 28 Oct 2026 12:20:06 +0000",
+    "fecha_procesada": "2026-10-28T13:01:50.464366+00:00"
   },
   {
     "id": "a607f94a2a4f",
@@ -42,7 +135,7 @@
       "Verificar nivel de inglés formal B2",
       "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
     ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Desarrollo / Automatización + Sistemas / Redes / ASIR + Logística / Calidad / Procedimientos + Aviónica / Electrónica / Simulación donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos + Aviónica / Electrónica / Simulación + Sistemas / Redes / ASIR + Desarrollo / Automatización donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "Mon, 26 Oct 2026 07:33:28 +0000",
     "fecha_procesada": "2026-10-27T16:08:53.294842+00:00"
   },
@@ -91,7 +184,7 @@
       "Verificar certificación específica Microsoft Azure",
       "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
     ],
-    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Desarrollo / Automatización + Ciberseguridad + Sistemas / Redes / ASIR + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad + Sistemas / Redes / ASIR + Desarrollo / Automatización + Ciberseguridad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "Mon, 26 Oct 2026 10:52:30 +0000",
     "fecha_procesada": "2026-10-27T16:08:53.207017+00:00"
   }
