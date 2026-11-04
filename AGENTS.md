@@ -1,6 +1,6 @@
 # AGENTS.md - Agente Autónomo de Búsqueda Diaria y Postulación Inteligente (AlertasEmpleo)
 
-Este repositorio opera bajo el estándar oficial de **Spec-Driven Development (GitHub Spec Kit)**, arquitectura de decisiones tipadas y el asistente autónomo de postulación de empleo para **Pedro Úbeda Sánchez**.
+Este repositorio opera bajo el estándar oficial de **Organic-Driven Development (ODD - Gentle Shell)**, arquitectura de decisiones tipadas y el asistente autónomo de postulación de empleo para **Pedro Úbeda Sánchez**.
 
 **REGLA DE ORO:** Todas las comunicaciones, explicaciones, comentarios, especificaciones y mensajes de commit deben ser obligatoriamente en **ESPAÑOL**.
 
