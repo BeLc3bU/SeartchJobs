@@ -1,5 +1,95 @@
 [
   {
+    "id": "127d7a29fc67",
+    "puesto": "Administrativo/a",
+    "empresa": "MULSERGO SL",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "Tiempo parcial",
+    "salario": "No especificado",
+    "url": "https://jobtoday.com/es/trabajo/administrativo-a-1ndPvo",
+    "fuente": "Job Today",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión administrativa, contable y documental: administrativo, facturación, archivo, excel"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "1793732879555",
+    "fecha_procesada": "2026-11-04T14:39:03.667335+00:00"
+  },
+  {
+    "id": "003c72f4b0d6",
+    "puesto": "Sales Assistant Sprinter Albacenter",
+    "empresa": "SPRINTER MEGACENTROS DEL DEPORTE",
+    "ubicacion": "Albacete",
+    "modalidad": "PRESENCIAL",
+    "horario": "Jornada parcial - indiferente",
+    "salario": "No especificado",
+    "url": "https://www.infojobs.net/albacete/sales-assistant-sprinter-albacenter/of-i171351e46c452193ae366df01dcd2f?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
+    "fuente": "InfoJobs",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión de material, almacén y control de calidad: stock"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Posición local en Hellín/Albacete. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "2026-11-04T08:06:32Z",
+    "fecha_procesada": "2026-11-04T14:39:03.607144+00:00"
+  },
+  {
+    "id": "59e53fba41b6",
+    "puesto": "Sales Assistant Sprinter Albacete Imaginalia",
+    "empresa": "SPRINTER MEGACENTROS DEL DEPORTE",
+    "ubicacion": "Albacete",
+    "modalidad": "PRESENCIAL",
+    "horario": "Jornada parcial - indiferente",
+    "salario": "No especificado",
+    "url": "https://www.infojobs.net/albacete/sales-assistant-sprinter-albacete-imaginalia/of-ibeaeedf79c440ab6ae2c9b8e2d33ee?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
+    "fuente": "InfoJobs",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión de material, almacén y control de calidad: stock"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Posición local en Hellín/Albacete. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "2026-11-04T08:08:39Z",
+    "fecha_procesada": "2026-11-04T14:39:03.598622+00:00"
+  },
+  {
+    "id": "ff9ab2e65c9b",
+    "puesto": "Programador/a Abap (Ingles alto) Remoto",
+    "empresa": "Grupo Digital",
+    "ubicacion": "100% En remoto",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "Sin especificar",
+    "url": "https://www.tecnoempleo.com/programador-abap-ingles-alto-remoto-grupo-digital/sap-hana/rf-13bf1c2d82a0d3eeb541",
+    "fuente": "Tecnoempleo",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión administrativa, contable y documental: sap",
+      "Ciberseguridad y protección de sistemas: ciberseguridad"
+    ],
+    "requisitos_verificar": [
+      "Verificar nivel de inglés requerido (B2/C1) para operativa diaria",
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Ciberseguridad + Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Tue, 03 Nov 2026 14:32:26 +0000",
+    "fecha_procesada": "2026-11-04T14:39:03.577736+00:00"
+  },
+  {
     "id": "37db2f10b47f",
     "puesto": "Helpdesk N1 – Euskera e Inglés (remoto, jornada parcial)",
     "empresa": "SOSmatic",
