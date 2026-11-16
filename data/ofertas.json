@@ -1,1 +1,110 @@
-[]
+[
+  {
+    "id": "b230dfc5637d",
+    "puesto": "Empresa De Ascensores En Sentmenat",
+    "empresa": "Cronoshare.Com",
+    "ubicacion": "Madrid",
+    "modalidad": "PRESENCIAL",
+    "horario": "No especificado",
+    "salario": "No especificado",
+    "url": "https://jobtoday.com/es/trabajo/es2bc7360e620c5e3fcb408b07950d2655bcf8e19d1a241914f83edd3119612d70",
+    "fuente": "Job Today",
+    "clasificacion": "A",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Automatización y scripting: automatización"
+    ],
+    "requisitos_verificar": [],
+    "motivo": "Posición local en Hellín/Albacete. Horario: Fin de semana. Oportunidad sólida en Desarrollo / Automatización donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "1794760645000",
+    "fecha_procesada": "2026-11-16T15:54:57.507046+00:00"
+  },
+  {
+    "id": "8644d26a9dfa",
+    "puesto": "Tecnico/a de Soporte IT con idiomas (24x7)",
+    "empresa": "Grupo Digital",
+    "ubicacion": "hibrido",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "Sin especificar",
+    "url": "https://www.tecnoempleo.com/tecnico-soporte-it-con-idiomas-24x7-grupo-digital/microsoft-365/rf-348d11674286435b354c",
+    "fuente": "Tecnoempleo",
+    "clasificacion": "A",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Administración de sistemas y redes: redes, soporte técnico, soporte a usuarios, soporte it",
+      "Aviónica, hardware y sistemas críticos: hardware",
+      "Ciberseguridad y protección de sistemas: ciberseguridad"
+    ],
+    "requisitos_verificar": [],
+    "motivo": "Teletrabajo 100% compatible. Horario: Fin de semana. Oportunidad sólida en Ciberseguridad + Aviónica / Electrónica / Simulación + Sistemas / Redes / ASIR donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Mon, 16 Nov 2026 14:56:32 +0000",
+    "fecha_procesada": "2026-11-16T15:54:57.309449+00:00"
+  },
+  {
+    "id": "4b0f5dd73f6a",
+    "puesto": "Administrativo/a contable senior",
+    "empresa": "Hotlist",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "Tiempo parcial",
+    "salario": "25.000 - 27.000 € / año",
+    "url": "https://jobtoday.com/es/trabajo/administrativo-a-contable-senior-OZ7LEp",
+    "fuente": "Job Today",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión administrativa, contable y documental: administrativo, administración, contable, contabilidad"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "1794839286669",
+    "fecha_procesada": "2026-11-16T15:54:57.517661+00:00"
+  },
+  {
+    "id": "0e9c6d10664e",
+    "puesto": "Auxiliar administrativo a tiempo parcial",
+    "empresa": "ALVARE GONZALEZ MUÑIZ S.L.",
+    "ubicacion": "Avilés",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "No especificado",
+    "url": "https://es.linkedin.com/jobs/view/auxiliar-administrativo-a-tiempo-parcial-at-alvare-gonzalez-mu%C3%B1iz-s-l-4491291957",
+    "fuente": "LinkedIn",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Gestión administrativa, contable y documental: administrativo, auxiliar administrativo"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Administración / Gestión / Contabilidad donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "2026-11-16",
+    "fecha_procesada": "2026-11-16T15:54:57.448293+00:00"
+  },
+  {
+    "id": "935f17debf92",
+    "puesto": "Desarrollador Javascript Nativo",
+    "empresa": "Second Window",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "Sin especificar",
+    "url": "https://www.tecnoempleo.com/desarrollador-javascript-nativo-second-window/vanilla-js-web-components/rf-d4501a532266d311834c",
+    "fuente": "Tecnoempleo",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Automatización y scripting: javascript, git, ci/cd"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Desarrollo / Automatización donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Mon, 16 Nov 2026 08:19:13 +0000",
+    "fecha_procesada": "2026-11-16T15:54:57.415530+00:00"
+  }
+]
