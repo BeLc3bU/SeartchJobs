@@ -1,5 +1,49 @@
 [
   {
+    "id": "ae06f07890f2",
+    "puesto": "Machine Learning/Artificial Intelligence Engineer Senior",
+    "empresa": "GRADIANT",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "No especificado",
+    "url": "https://jobtoday.com/es/trabajo/es376d1a57f071e0974b5c8f53ad0ed143c4803b7adc4b53e756a8f7bd027f5520",
+    "fuente": "Job Today",
+    "clasificacion": "A",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Automatización y scripting: python, git",
+      "Ciberseguridad y protección de sistemas: ciberseguridad"
+    ],
+    "requisitos_verificar": [],
+    "motivo": "Teletrabajo 100% compatible. Horario: Fin de semana. Oportunidad sólida en Ciberseguridad + Desarrollo / Automatización donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "1795541252000",
+    "fecha_procesada": "2026-11-25T17:18:28.007176+00:00"
+  },
+  {
+    "id": "13e860452d33",
+    "puesto": "Profesor/a de informática - Programación y Sistemas",
+    "empresa": "Skilly Academy",
+    "ubicacion": "Torrelavega",
+    "modalidad": "REMOTO",
+    "horario": "Jornada indiferente",
+    "salario": "No especificado",
+    "url": "https://www.infojobs.net/torrelavega/profesor-informatica-programacion-sistemas/of-i3acead93724e0288bacfa2ba892922?applicationOrigin=search-new&page=1&sortBy=RELEVANCE",
+    "fuente": "InfoJobs",
+    "clasificacion": "A",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Administración de sistemas y redes: linux, windows server, active directory, redes",
+      "Automatización y scripting: python, sql, javascript, git",
+      "Gestión administrativa, contable y documental: administración",
+      "Ciberseguridad y protección de sistemas: ciberseguridad"
+    ],
+    "requisitos_verificar": [],
+    "motivo": "Teletrabajo 100% compatible. Horario: Turno de tarde + Tiempo parcial / media jornada. Oportunidad sólida en Ciberseguridad + Administración / Gestión / Contabilidad + Desarrollo / Automatización + Sistemas / Redes / ASIR donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "2026-11-25T11:00:04Z",
+    "fecha_procesada": "2026-11-25T17:18:27.761928+00:00"
+  },
+  {
     "id": "d969dfbffba8",
     "puesto": "Responsable Cau Y Soporte Técnico",
     "empresa": "Emotiva",
@@ -20,6 +64,52 @@
     "motivo": "Posición local en Hellín/Albacete. Horario: Fin de semana. Oportunidad sólida en Ciberseguridad + Administración / Gestión / Contabilidad + Sistemas / Redes / ASIR donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
     "fecha_publicacion": "1795511132000",
     "fecha_procesada": "2026-11-24T17:52:01.885914+00:00"
+  },
+  {
+    "id": "41653d78ad64",
+    "puesto": "Logistics Manager - Europe",
+    "empresa": "Moove Cars Group",
+    "ubicacion": "Madrid",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "No especificado",
+    "url": "https://jobtoday.com/es/trabajo/esc07c308e5ab9f81f29115f0a26702c779c0ce3f79a959cc115a1579151b311cb",
+    "fuente": "Job Today",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Automatización y scripting: automatización",
+      "Gestión de material, almacén y control de calidad: logística"
+    ],
+    "requisitos_verificar": [
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Desarrollo / Automatización + Logística / Calidad / Procedimientos donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "1795541394000",
+    "fecha_procesada": "2026-11-25T17:18:28.043216+00:00"
+  },
+  {
+    "id": "6811b4d6fe97",
+    "puesto": "Analista Programador/a Dynamics 365 CRM",
+    "empresa": "Digital Talent Agency",
+    "ubicacion": "100% En remoto",
+    "modalidad": "REMOTO",
+    "horario": "No especificado",
+    "salario": "Sin especificar",
+    "url": "https://www.tecnoempleo.com/analista-programador-dynamics-365-crm-digital-tale/dynamics365-dynamicscrm/rf-c7351cd2420a63bc2946",
+    "fuente": "Tecnoempleo",
+    "clasificacion": "B",
+    "estado": "NUEVA",
+    "requisitos_cumple": [
+      "Automatización y scripting: javascript"
+    ],
+    "requisitos_verificar": [
+      "Verificar certificación específica Microsoft Azure",
+      "Confirmar con la empresa compatibilidad con tiempo parcial por la tarde o fin de semana"
+    ],
+    "motivo": "Teletrabajo 100% compatible. Horario: Tiempo parcial / media jornada. Oportunidad sólida en Desarrollo / Automatización donde tu bagaje de 22 años en sistemas críticos y disciplina operativa aporta diferenciación inmediata.",
+    "fecha_publicacion": "Wed, 25 Nov 2026 12:56:35 +0000",
+    "fecha_procesada": "2026-11-25T17:18:27.643520+00:00"
   },
   {
     "id": "17b25d4d8d3e",
